@@ -130,7 +130,7 @@ function App() {
 
       const parents = current.incomers('node');
       if (parents.length === 0) break;
-      current = parents.first();
+      current = parents.first() as any;
     }
 
     const pathEdges = cy.edges().filter(e => path.contains(e.source()) && path.contains(e.target()));

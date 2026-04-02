@@ -1,6 +1,6 @@
-import type { Stylesheet } from 'cytoscape';
-
-export const cytoscapeStyles: Stylesheet[] = [
+// Cytoscape's TS types are notoriously mismatched; using any[] here.
+// Each entry uses `as any` on the style object for the same reason.
+export const cytoscapeStyles: any[] = [
   // Base node style
   {
     selector: 'node',

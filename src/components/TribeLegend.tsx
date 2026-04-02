@@ -27,7 +27,7 @@ export function TribeLegend({ tribes, activeTribe, onTribeClick }: Props) {
             activeTribe === t.id ? 'bg-stone-700 text-white' : 'text-stone-400 hover:bg-stone-700/50 hover:text-stone-200'
           }`}
         >
-          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: t.color, border: `1.5px solid ${t.borderColor}` }} />
+          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: t.bg, border: `1.5px solid ${t.border}` }} />
           <span className="truncate">{t.displayName}</span>
         </button>
       ))}

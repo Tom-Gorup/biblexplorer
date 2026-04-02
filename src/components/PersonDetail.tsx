@@ -41,7 +41,7 @@ function getAncestryPath(cy: Core, personId: string): FamilyMember[] {
     // Walk to parent (pick the one with longest chain, favoring the first incomer)
     const parents = current.incomers('node');
     if (parents.length === 0) break;
-    current = parents.first();
+    current = parents.first() as any;
   }
 
   return path;

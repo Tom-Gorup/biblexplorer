@@ -29,7 +29,7 @@ export interface Relationship {
 export interface TribeMeta {
   id: TribeId;
   displayName: string;
-  color: string;
-  borderColor: string;
+  bg: string;
+  border: string;
   chapter: string;
 }
