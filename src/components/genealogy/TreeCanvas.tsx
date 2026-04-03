@@ -33,6 +33,7 @@ interface TooltipData {
 
 interface EraMarker {
   label: string;
+  x: number;
   y: number;
   color: string;
 }
@@ -55,7 +56,6 @@ export function TreeCanvas({ elements, selectedId, onSelectPerson, layoutDir, cy
   const [eraMarkers, setEraMarkers] = useState<EraMarker[]>([]);
 
   const updateEraPositions = useCallback((cy: Core, dir: 'TB' | 'LR') => {
-    if (dir !== 'TB') { setEraMarkers([]); return; }
     const zoom = cy.zoom();
     if (zoom < 0.1) { setEraMarkers([]); return; }
 
@@ -66,9 +66,13 @@ export function TreeCanvas({ elements, selectedId, onSelectPerson, layoutDir, cy
       const node = cy.getElementById(era.anchor);
       if (!node.length) return null;
       const rp = node.renderedPosition();
-      // Only show if within the visible viewport (with some padding)
-      if (rp.y < -30 || rp.y > containerRect.height + 30) return null;
-      return { label: era.label, y: rp.y, color: era.color };
+      if (dir === 'TB') {
+        if (rp.y < -30 || rp.y > containerRect.height + 30) return null;
+        return { label: era.label, x: 0, y: rp.y, color: era.color };
+      } else {
+        if (rp.x < -30 || rp.x > containerRect.width + 30) return null;
+        return { label: era.label, x: rp.x, y: 0, color: era.color };
+      }
     }).filter(Boolean) as EraMarker[];
 
     setEraMarkers(markers);
@@ -261,8 +265,13 @@ export function TreeCanvas({ elements, selectedId, onSelectPerson, layoutDir, cy
       {eraMarkers.map(marker => (
         <div
           key={marker.label}
-          className="absolute left-2 pointer-events-none z-[5]"
-          style={{ top: marker.y, transform: 'translateY(-50%)' }}
+          className={`absolute pointer-events-none z-[5] ${
+            layoutDir === 'TB' ? 'left-2' : 'top-2'
+          }`}
+          style={layoutDir === 'TB'
+            ? { top: marker.y, transform: 'translateY(-50%)' }
+            : { left: marker.x, transform: 'translateX(-50%)' }
+          }
         >
           <div className="flex items-center gap-1.5 bg-stone-900/80 backdrop-blur-sm rounded-full px-2.5 py-1">
             <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: marker.color }} />
