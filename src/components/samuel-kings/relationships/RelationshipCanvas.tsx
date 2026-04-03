@@ -18,9 +18,10 @@ interface Props {
   elements: any[];
   selectedId: string | null;
   onSelectCharacter: (id: string | null) => void;
+  hiddenTypes: Set<string>;
 }
 
-export function RelationshipCanvas({ elements, selectedId, onSelectCharacter }: Props) {
+export function RelationshipCanvas({ elements, selectedId, onSelectCharacter, hiddenTypes }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const cyRef = useRef<Core | null>(null);
   const [loading, setLoading] = useState(true);
@@ -102,6 +103,21 @@ export function RelationshipCanvas({ elements, selectedId, onSelectCharacter }: 
       cy.nodes().unselect();
     }
   }, [selectedId]);
+
+  // Filter edges by relationship type
+  useEffect(() => {
+    const cy = cyRef.current;
+    if (!cy) return;
+    cy.batch(() => {
+      cy.edges().forEach(edge => {
+        if (hiddenTypes.has(edge.data('relType'))) {
+          edge.addClass('hidden');
+        } else {
+          edge.removeClass('hidden');
+        }
+      });
+    });
+  }, [hiddenTypes]);
 
   const handleFit = useCallback(() => { cyRef.current?.fit(undefined, 50); }, []);
 
