@@ -150,7 +150,7 @@ export default function TimelinePage() {
   }, []);
 
   return (
-    <div className="flex flex-col h-full bg-stone-900">
+    <div className="flex flex-col h-full bg-stone-900 relative">
       <div className="flex-1 overflow-x-auto overflow-y-auto">
         <div style={{ width: TOTAL_WIDTH + 120 }} className="relative px-14 pt-6 pb-20 min-h-full">
 
@@ -159,7 +159,7 @@ export default function TimelinePage() {
             <div
               key={y}
               className="absolute top-0 border-l border-stone-700/30"
-              style={{ left: yearToX(y), bottom: 0 }}
+              style={{ left: yearToX(y) + 56, bottom: 0 }}
             />
           ))}
 
@@ -191,7 +191,7 @@ export default function TimelinePage() {
                         <div
                           key={king.id}
                           onClick={() => handleKingClick(king)}
-                          title={`${king.name} (${king.reignStart}\u2013${king.reignEnd} BC) \u00B7 ${ASSESSMENT_LABELS[king.assessment]}`}
+                          title={`${king.name} (${king.reignStart}–${king.reignEnd} BC) · ${ASSESSMENT_LABELS[king.assessment]}`}
                           className={`absolute cursor-pointer rounded transition-all border ${
                             isSel ? 'ring-2 ring-white/80 z-10 brightness-125'
                             : isProphetLinked ? 'ring-2 ring-violet-400/80 z-10 brightness-125'
@@ -246,7 +246,7 @@ export default function TimelinePage() {
                     <div
                       key={prophet.id}
                       onClick={() => handleProphetClick(prophet)}
-                      title={`${prophet.name} (~${prophet.start}\u2013${prophet.end} BC)`}
+                      title={`${prophet.name} (~${prophet.start}–${prophet.end} BC)`}
                       className={`absolute cursor-pointer rounded transition-all border flex items-center gap-1 px-1.5 ${
                         isSel ? 'ring-2 ring-white/80 z-10 brightness-125'
                         : isKingLinked ? 'ring-2 ring-violet-400/80 z-10 brightness-125'
@@ -293,25 +293,24 @@ export default function TimelinePage() {
             ))}
           </div>
 
-          {/* ── Legend ──────────────────────────────────────── */}
-          <div className="flex flex-wrap gap-4 mt-6 items-center">
-            {Object.entries(assessmentColors).map(([key, val]) => (
-              <div key={key} className="flex items-center gap-1.5">
-                <span className="w-3.5 h-3 rounded" style={{ backgroundColor: val.bg, border: `1px solid ${val.border}` }} />
-                <span className="text-[10px] text-stone-400">{ASSESSMENT_LABELS[key]}</span>
-              </div>
-            ))}
-            <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rotate-45" style={{ backgroundColor: '#a78bfa', border: '1px solid #c4b5fd' }} />
-              <span className="text-[10px] text-stone-400">Prophet</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-4 h-0 border border-dashed border-violet-400/60 rounded" />
-              <span className="text-[10px] text-stone-400">Click prophet/king to see connections</span>
-            </div>
-          </div>
         </div>
       </div>
+
+      {/* ── Floating legend ──────────────────────────────── */}
+      {!selected && !selectedProphet && (
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-stone-900/90 backdrop-blur-xl border border-stone-700/80 rounded-full px-4 py-1.5 z-10">
+          {Object.entries(assessmentColors).map(([key, val]) => (
+            <div key={key} className="flex items-center gap-1.5">
+              <span className="w-3 h-2.5 rounded" style={{ backgroundColor: val.bg, border: `1px solid ${val.border}` }} />
+              <span className="text-[10px] text-stone-400">{ASSESSMENT_LABELS[key]}</span>
+            </div>
+          ))}
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rotate-45" style={{ backgroundColor: '#a78bfa', border: '1px solid #c4b5fd' }} />
+            <span className="text-[10px] text-stone-400">Prophet</span>
+          </div>
+        </div>
+      )}
 
       {/* ── King detail panel ────────────────────────────── */}
       {selected && (
@@ -337,7 +336,7 @@ export default function TimelinePage() {
               {ASSESSMENT_LABELS[selected.assessment]}
             </span>
             <span className="px-2 py-0.5 rounded-full text-xs text-stone-400 bg-stone-700">
-              {selected.reignStart}\u2013{selected.reignEnd} BC ({selected.reignYears} yr{selected.reignYears !== 1 ? 's' : ''})
+              {selected.reignStart}–{selected.reignEnd} BC ({selected.reignYears} yr{selected.reignYears !== 1 ? 's' : ''})
             </span>
           </div>
           <p className="text-stone-300 text-sm leading-relaxed mb-3">{selected.description}</p>
@@ -378,7 +377,7 @@ export default function TimelinePage() {
               Prophet
             </span>
             <span className="px-2 py-0.5 rounded-full text-xs text-stone-400 bg-stone-700">
-              ~{selectedProphet.start}\u2013{selectedProphet.end} BC
+              ~{selectedProphet.start}–{selectedProphet.end} BC
             </span>
           </div>
           <p className="text-stone-300 text-sm leading-relaxed mb-3">{selectedProphet.message}</p>
