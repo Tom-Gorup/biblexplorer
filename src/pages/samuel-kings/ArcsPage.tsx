@@ -17,7 +17,7 @@ const ARC_CHARS: { id: string; name: string; color: string }[] = [
 ];
 
 // ── SVG dimensions ──────────────────────────────────────────────
-const CHART_PAD = { top: 25, right: 20, bottom: 45, left: 55 };
+const CHART_PAD = { top: 25, right: 20, bottom: 60, left: 55 };
 
 // All arcs span from ~1050 BC to ~609 BC
 const MIN_YEAR = 1060;
@@ -303,8 +303,8 @@ export default function ArcsPage() {
                   stroke="#292524" strokeWidth={1}
                 />
                 <text
-                  x={vYearToX(y)} y={CHART_PAD.top + INNER_H + 18}
-                  fill="#78716c" fontSize="11" textAnchor="middle" fontFamily="monospace"
+                  x={vYearToX(y)} y={CHART_PAD.top + INNER_H + 22}
+                  fill="#a8a29e" fontSize="12" textAnchor="middle" fontFamily="monospace" fontWeight="500"
                 >
                   {y} BC
                 </text>
