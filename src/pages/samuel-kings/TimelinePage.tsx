@@ -29,7 +29,7 @@ interface Prophet {
 }
 
 const PROPHETS: Prophet[] = [
-  { id: 'samuel',   name: 'Samuel',   start: 1070, end: 1020, message: 'Obedience is better than sacrifice',                           ref: '1 Sam 15:22',      targetKings: ['saul-king', 'david'] },
+  { id: 'samuel',   name: 'Samuel',   start: 1080, end: 1010, message: 'Obedience is better than sacrifice',                           ref: '1 Sam 15:22',      targetKings: ['saul-king', 'david'] },
   { id: 'nathan',   name: 'Nathan',   start: 1010, end: 970,  message: 'Confronted David, promised eternal dynasty',                    ref: '2 Sam 7:12-16',    targetKings: ['david', 'solomon'] },
   { id: 'elijah',   name: 'Elijah',   start: 870,  end: 850,  message: '"The LORD, He is God!" — confronted Baal worship',              ref: '1 Kgs 18:39',      targetKings: ['ahab-king', 'ahaziah-israel'] },
   { id: 'elisha',   name: 'Elisha',   start: 850,  end: 800,  message: 'Miracles demonstrating God\'s power and compassion',            ref: '2 Kgs 2-8',        targetKings: ['joram-israel', 'jehu-king', 'jehoahaz-israel', 'jehoash-israel'] },
@@ -120,7 +120,7 @@ export default function TimelinePage() {
   const connectorLines = useMemo(() => {
     // Build a map of king id → { x (midpoint), y (center of bar) }
     const kingPositions = new Map<string, { x: number; y: number }>();
-    let cumulativeY = 0; // tracks position within content (after pt-6 = 24px padding)
+    let cumulativeY = 24; // pt-6 = 24px top padding on content div
 
     for (const lane of lanes) {
       const laneH = lane.rows.length * (BAR_H + ROW_GAP) + LANE_PAD_Y * 2;
@@ -188,13 +188,13 @@ export default function TimelinePage() {
             <div
               key={y}
               className="absolute top-0 border-l border-stone-700/30"
-              style={{ left: yearToX(y) + 56, bottom: 0 }}
+              style={{ left: yearToX(y), bottom: 0 }}
             />
           ))}
 
           {/* ── Prophet→King connector lines ────────────────── */}
           {showConnections && connectorLines.length > 0 && (
-            <svg className="absolute inset-0 pointer-events-none z-[1]" style={{ left: 56 }}>
+            <svg className="absolute inset-0 pointer-events-none z-[1]">
               <defs>
                 <marker id="dot" viewBox="0 0 6 6" refX="3" refY="3" markerWidth="4" markerHeight="4">
                   <circle cx="3" cy="3" r="2.5" fill="#a78bfa" opacity="0.6" />
@@ -210,9 +210,9 @@ export default function TimelinePage() {
                     x2={line.x2}
                     y2={line.y2}
                     stroke="#a78bfa"
-                    strokeWidth={isHighlighted ? 2 : 1}
-                    strokeDasharray={isHighlighted ? 'none' : '4 4'}
-                    opacity={isHighlighted ? 0.7 : 0.2}
+                    strokeWidth={isHighlighted ? 2.5 : 1.5}
+                    strokeDasharray={isHighlighted ? 'none' : '4 3'}
+                    opacity={isHighlighted ? 0.8 : 0.35}
                     markerStart="url(#dot)"
                     markerEnd="url(#dot)"
                   />
