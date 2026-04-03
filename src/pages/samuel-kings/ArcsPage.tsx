@@ -124,26 +124,55 @@ export default function ArcsPage() {
       .join(' ');
   }, [vYearToX, influenceToY]);
 
-  const handleChartMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+  // Mouse move + drag handled by handleMouseMoveDrag
+
+  const handleChartMouseLeave = useCallback(() => {
+    setCrosshairX(null);
+    setCrosshairYear(null);
+    dragRef.current = null;
+  }, []);
+
+  // Drag to pan
+  const dragRef = useRef<{ startX: number; startMin: number; startMax: number } | null>(null);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    dragRef.current = { startX: e.clientX, startMin: viewMinYear, startMax: viewMaxYear };
+  }, [viewMinYear, viewMaxYear]);
+
+  const handleMouseMoveDrag = useCallback((e: React.MouseEvent) => {
+    // Always update crosshair
     const svg = svgRef.current;
     if (!svg) return;
     const rect = svg.getBoundingClientRect();
     const xPct = (e.clientX - rect.left) / rect.width;
     const svgX = xPct * CHART_W;
-    if (svgX < CHART_PAD.left || svgX > CHART_PAD.left + INNER_W) {
+    if (svgX >= CHART_PAD.left && svgX <= CHART_PAD.left + INNER_W) {
+      const yearPct = (svgX - CHART_PAD.left) / INNER_W;
+      const year = Math.round(viewMinYear - yearPct * (viewMinYear - viewMaxYear));
+      setCrosshairX(svgX);
+      setCrosshairYear(year);
+    } else {
       setCrosshairX(null);
       setCrosshairYear(null);
-      return;
     }
-    const yearPct = (svgX - CHART_PAD.left) / INNER_W;
-    const year = Math.round(viewMinYear - yearPct * (viewMinYear - viewMaxYear));
-    setCrosshairX(svgX);
-    setCrosshairYear(year);
-  }, [viewMinYear, viewMaxYear]);
 
-  const handleChartMouseLeave = useCallback(() => {
-    setCrosshairX(null);
-    setCrosshairYear(null);
+    // Handle drag pan
+    if (!dragRef.current) return;
+    const dx = e.clientX - dragRef.current.startX;
+    const yearPerPx = (dragRef.current.startMin - dragRef.current.startMax) / rect.width;
+    const yearShift = dx * yearPerPx;
+    const newMin = dragRef.current.startMin + yearShift;
+    const newMax = dragRef.current.startMax + yearShift;
+    // Clamp to valid range
+    if (newMin <= MIN_YEAR && newMax >= MAX_YEAR) {
+      setViewMinYear(newMin);
+      setViewMaxYear(newMax);
+    }
+  }, [CHART_W, INNER_W, viewMinYear, viewMaxYear]);
+
+  const handleMouseUp = useCallback(() => {
+    dragRef.current = null;
   }, []);
 
   const handleChartWheel = useCallback((e: React.WheelEvent) => {
@@ -257,9 +286,12 @@ export default function ArcsPage() {
             viewBox={`0 0 ${CHART_W} ${CHART_H}`}
             className="w-full h-full select-none"
             preserveAspectRatio="xMidYMid meet"
-            onMouseMove={handleChartMouseMove}
+            onMouseMove={handleMouseMoveDrag}
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
             onMouseLeave={handleChartMouseLeave}
             onWheel={handleChartWheel}
+            style={{ cursor: dragRef.current ? 'grabbing' : 'crosshair' }}
           >
             {/* Background grid */}
             {yearMarks.map(y => (
