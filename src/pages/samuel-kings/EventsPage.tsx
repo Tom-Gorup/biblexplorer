@@ -74,6 +74,18 @@ export default function EventsPage() {
       .filter(m => m.location !== null) as { event: SKEvent; location: SKLocation }[];
   }, [visibleEvents]);
 
+  // Only show label for the most significant event per location (to avoid overlap)
+  const labeledEventIds = useMemo(() => {
+    const bestPerLocation = new Map<string, SKEvent>();
+    for (const { event, location } of mappedEvents) {
+      const existing = bestPerLocation.get(location.id);
+      if (!existing || event.significance === 'major' || (event.significance === 'notable' && existing.significance === 'minor')) {
+        bestPerLocation.set(location.id, event);
+      }
+    }
+    return new Set([...bestPerLocation.values()].map(e => e.id));
+  }, [mappedEvents]);
+
   const activeCityIds = useMemo(() => {
     const ids = new Set<string>();
     for (const { location } of mappedEvents) ids.add(location.id);
@@ -220,9 +232,6 @@ export default function EventsPage() {
               height={IMG_H}
             />
 
-            {/* Slight dark overlay for readability */}
-            <rect x={viewBox.x} y={viewBox.y} width={viewBox.w} height={viewBox.h} fill="black" opacity="0.25" />
-
             {/* City dots */}
             {allLocations.map(loc => {
               // Skip far-off locations outside the main view
@@ -285,21 +294,20 @@ export default function EventsPage() {
                     strokeWidth={1}
                     opacity={0.9}
                   />
-                  {(event.significance !== 'minor' || isSel) && (
+                  {(isSel || labeledEventIds.has(event.id)) && (
                     <>
-                      {/* Text shadow/background */}
                       <text
                         x={pos.x} y={pos.y - 12}
-                        fill="#000" fontSize="8" fontWeight="700" textAnchor="middle" opacity={0.6}
-                        stroke="#000" strokeWidth={3} paintOrder="stroke"
+                        fill="#000" fontSize="7" fontWeight="600" textAnchor="middle" opacity={0.5}
+                        stroke="#000" strokeWidth={2.5} paintOrder="stroke"
                       >
-                        {event.name.length > 20 ? event.name.slice(0, 18) + '…' : event.name}
+                        {event.name.length > 22 ? event.name.slice(0, 20) + '…' : event.name}
                       </text>
                       <text
                         x={pos.x} y={pos.y - 12}
-                        fill="#fff" fontSize="8" fontWeight="700" textAnchor="middle"
+                        fill="#fff" fontSize="7" fontWeight="600" textAnchor="middle"
                       >
-                        {event.name.length > 20 ? event.name.slice(0, 18) + '…' : event.name}
+                        {event.name.length > 22 ? event.name.slice(0, 20) + '…' : event.name}
                       </text>
                     </>
                   )}
@@ -309,9 +317,9 @@ export default function EventsPage() {
           </svg>
 
           {/* Year overlay */}
-          <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm rounded-xl px-4 py-2 z-10">
-            <div className="text-amber-400 font-mono font-bold text-2xl leading-tight">{currentYear} BC</div>
-            <div className="text-stone-400 text-xs">{visibleEvents.length} event{visibleEvents.length !== 1 ? 's' : ''} nearby</div>
+          <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm rounded-lg px-3 py-1.5 z-10">
+            <span className="text-amber-400 font-mono font-bold text-sm">{currentYear} BC</span>
+            <span className="text-stone-500 text-[10px] ml-2">{visibleEvents.length} event{visibleEvents.length !== 1 ? 's' : ''}</span>
           </div>
 
           {/* Zoom controls */}
