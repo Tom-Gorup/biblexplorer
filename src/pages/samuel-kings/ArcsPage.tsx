@@ -17,9 +17,9 @@ const ARC_CHARS: { id: string; name: string; color: string }[] = [
 ];
 
 // ── SVG dimensions ──────────────────────────────────────────────
-const CHART_PAD = { top: 30, right: 20, bottom: 50, left: 55 };
-const CHART_W = 1400;
-const CHART_H = 550;
+const CHART_PAD = { top: 25, right: 20, bottom: 45, left: 55 };
+const CHART_W = 1600;
+const CHART_H = 500;
 const INNER_W = CHART_W - CHART_PAD.left - CHART_PAD.right;
 const INNER_H = CHART_H - CHART_PAD.top - CHART_PAD.bottom;
 
@@ -130,12 +130,27 @@ export default function ArcsPage() {
 
   const handleChartWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
-    const factor = e.deltaY > 0 ? 0.9 : 1.1; // scroll down = zoom out, up = zoom in
+    const svg = svgRef.current;
+    if (!svg) return;
+
+    // Find what year the mouse is pointing at
+    const rect = svg.getBoundingClientRect();
+    const xPct = (e.clientX - rect.left) / rect.width;
+    const svgX = xPct * CHART_W;
+    const yearPct = Math.max(0, Math.min(1, (svgX - CHART_PAD.left) / INNER_W));
+    const mouseYear = viewMinYear - yearPct * (viewMinYear - viewMaxYear);
+
+    // Zoom toward the mouse position
+    const factor = e.deltaY > 0 ? 0.9 : 1.1;
     const totalSpan = viewMinYear - viewMaxYear;
-    const center = (viewMinYear + viewMaxYear) / 2;
-    const newSpan = Math.max(80, Math.min(MIN_YEAR - MAX_YEAR, totalSpan / factor));
-    setViewMinYear(Math.min(MIN_YEAR, center + newSpan / 2));
-    setViewMaxYear(Math.max(MAX_YEAR, center - newSpan / 2));
+    const newSpan = Math.max(50, Math.min(MIN_YEAR - MAX_YEAR, totalSpan / factor));
+
+    // Keep the mouse year at the same screen position
+    const newMin = mouseYear + yearPct * newSpan;
+    const newMax = mouseYear - (1 - yearPct) * newSpan;
+
+    setViewMinYear(Math.min(MIN_YEAR, Math.max(newMin, newSpan + MAX_YEAR)));
+    setViewMaxYear(Math.max(MAX_YEAR, Math.min(newMax, MIN_YEAR - newSpan)));
   }, [viewMinYear, viewMaxYear]);
 
   const handleResetZoom = useCallback(() => {
@@ -224,7 +239,9 @@ export default function ArcsPage() {
           <svg
             ref={svgRef}
             viewBox={`0 0 ${CHART_W} ${CHART_H}`}
-            className="w-full h-full select-none"
+            width="100%"
+            height="100%"
+            className="select-none"
             preserveAspectRatio="none"
             onMouseMove={handleChartMouseMove}
             onMouseLeave={handleChartMouseLeave}
