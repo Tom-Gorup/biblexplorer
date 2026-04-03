@@ -18,10 +18,6 @@ const ARC_CHARS: { id: string; name: string; color: string }[] = [
 
 // ── SVG dimensions ──────────────────────────────────────────────
 const CHART_PAD = { top: 25, right: 20, bottom: 45, left: 55 };
-const CHART_W = 1600;
-const CHART_H = 500;
-const INNER_W = CHART_W - CHART_PAD.left - CHART_PAD.right;
-const INNER_H = CHART_H - CHART_PAD.top - CHART_PAD.bottom;
 
 // All arcs span from ~1050 BC to ~609 BC
 const MIN_YEAR = 1060;
@@ -29,9 +25,7 @@ const MAX_YEAR = 600;
 
 // yearToX is now dynamic (vYearToX) — responds to zoom state
 
-function influenceToY(influence: number): number {
-  return CHART_PAD.top + INNER_H - (influence / 100) * INNER_H;
-}
+// influenceToY is now inside the component (depends on dynamic INNER_H)
 
 // buildPath is now a hook (vBuildPath) that responds to zoom state
 
@@ -46,6 +40,30 @@ export default function ArcsPage() {
   const [crosshairX, setCrosshairX] = useState<number | null>(null);
   const [crosshairYear, setCrosshairYear] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerSize, setContainerSize] = useState({ w: 1200, h: 500 });
+
+  // Track container size
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const obs = new ResizeObserver(entries => {
+      const { width, height } = entries[0].contentRect;
+      if (width > 0 && height > 0) setContainerSize({ w: width, h: height });
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  // Dynamic chart dimensions matching container
+  const CHART_W = containerSize.w;
+  const CHART_H = containerSize.h;
+  const INNER_W = CHART_W - CHART_PAD.left - CHART_PAD.right;
+  const INNER_H = CHART_H - CHART_PAD.top - CHART_PAD.bottom;
+
+  const influenceToY = useCallback((influence: number): number => {
+    return CHART_PAD.top + INNER_H - (influence / 100) * INNER_H;
+  }, [INNER_H]);
 
   // Auto-fit view to selected characters' date range
   const autoFitRange = useMemo(() => {
@@ -104,7 +122,7 @@ export default function ArcsPage() {
     return sorted
       .map((p, i) => `${i === 0 ? 'M' : 'L'} ${vYearToX(p.year).toFixed(1)} ${influenceToY(p.influence).toFixed(1)}`)
       .join(' ');
-  }, [vYearToX]);
+  }, [vYearToX, influenceToY]);
 
   const handleChartMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
     const svg = svgRef.current;
@@ -158,8 +176,6 @@ export default function ArcsPage() {
     setViewMaxYear(MAX_YEAR);
   }, []);
 
-  // allKings and allSKCharacters used for character lookups when needed
-
   const toggleChar = useCallback((id: string) => {
     setSelected(prev => {
       const next = new Set(prev);
@@ -181,7 +197,7 @@ export default function ArcsPage() {
   // Year grid lines (dynamic based on zoom)
   const yearMarks = useMemo(() => {
     const span = viewMinYear - viewMaxYear;
-    const step = span > 300 ? 50 : span > 120 ? 25 : span > 60 ? 10 : 5;
+    const step = span > 300 ? 50 : span > 80 ? 25 : span > 40 ? 10 : 5;
     const marks = [];
     const start = Math.floor(viewMinYear / step) * step;
     for (let y = start; y >= viewMaxYear; y -= step) marks.push(y);
@@ -235,14 +251,12 @@ export default function ArcsPage() {
       </div>
 
       {/* ── Chart (full width) ─────────────────────────── */}
-      <div className="flex-1 overflow-hidden relative">
+      <div ref={containerRef} className="flex-1 overflow-hidden relative">
           <svg
             ref={svgRef}
             viewBox={`0 0 ${CHART_W} ${CHART_H}`}
-            width="100%"
-            height="100%"
-            className="select-none"
-            preserveAspectRatio="none"
+            className="w-full h-full select-none"
+            preserveAspectRatio="xMidYMid meet"
             onMouseMove={handleChartMouseMove}
             onMouseLeave={handleChartMouseLeave}
             onWheel={handleChartWheel}
