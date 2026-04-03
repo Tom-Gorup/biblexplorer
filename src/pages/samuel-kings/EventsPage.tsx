@@ -112,11 +112,87 @@ export default function EventsPage() {
     setSelectedEvent(prev => prev?.id === event.id ? null : event);
   }, []);
 
-  // Viewbox: show the full image (already cropped to Israel region)
-  const vbX = 0;
-  const vbY = 0;
-  const vbW = IMG_W;
-  const vbH = IMG_H;
+  // ── Viewbox (zoom/pan state) ──────────────────────────────────
+  // Default: zoom into the core Israel region (Dan to Beersheba)
+  const danPx = toPixel(33.25, 34.5);
+  const beerPx = toPixel(31.0, 36.2);
+  const defaultVB = {
+    x: danPx.x - 30,
+    y: danPx.y - 30,
+    w: (beerPx.x - danPx.x) + 60,
+    h: (beerPx.y - danPx.y) + 60,
+  };
+
+  const [viewBox, setViewBox] = useState(defaultVB);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const dragRef = useRef<{ startX: number; startY: number; vb: typeof defaultVB } | null>(null);
+
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    const factor = e.deltaY > 0 ? 1.15 : 0.87; // zoom out / zoom in
+    setViewBox(vb => {
+      const newW = Math.max(100, Math.min(IMG_W, vb.w * factor));
+      const newH = Math.max(133, Math.min(IMG_H, vb.h * factor));
+      // Zoom toward center
+      const cx = vb.x + vb.w / 2;
+      const cy = vb.y + vb.h / 2;
+      return {
+        x: Math.max(0, Math.min(IMG_W - newW, cx - newW / 2)),
+        y: Math.max(0, Math.min(IMG_H - newH, cy - newH / 2)),
+        w: newW,
+        h: newH,
+      };
+    });
+  }, []);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    dragRef.current = { startX: e.clientX, startY: e.clientY, vb: viewBox };
+  }, [viewBox]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!dragRef.current || !svgRef.current) return;
+    const svg = svgRef.current;
+    const rect = svg.getBoundingClientRect();
+    const scaleX = viewBox.w / rect.width;
+    const scaleY = viewBox.h / rect.height;
+    const dx = (e.clientX - dragRef.current.startX) * scaleX;
+    const dy = (e.clientY - dragRef.current.startY) * scaleY;
+    setViewBox({
+      x: Math.max(0, Math.min(IMG_W - dragRef.current.vb.w, dragRef.current.vb.x - dx)),
+      y: Math.max(0, Math.min(IMG_H - dragRef.current.vb.h, dragRef.current.vb.y - dy)),
+      w: dragRef.current.vb.w,
+      h: dragRef.current.vb.h,
+    });
+  }, [viewBox]);
+
+  const handleMouseUp = useCallback(() => { dragRef.current = null; }, []);
+
+  const handleResetView = useCallback(() => setViewBox(defaultVB), [defaultVB]);
+
+  const handleZoomIn = useCallback(() => {
+    setViewBox(vb => {
+      const newW = Math.max(100, vb.w * 0.7);
+      const newH = Math.max(133, vb.h * 0.7);
+      const cx = vb.x + vb.w / 2;
+      const cy = vb.y + vb.h / 2;
+      return { x: Math.max(0, cx - newW / 2), y: Math.max(0, cy - newH / 2), w: newW, h: newH };
+    });
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    setViewBox(vb => {
+      const newW = Math.min(IMG_W, vb.w * 1.4);
+      const newH = Math.min(IMG_H, vb.h * 1.4);
+      const cx = vb.x + vb.w / 2;
+      const cy = vb.y + vb.h / 2;
+      return {
+        x: Math.max(0, Math.min(IMG_W - newW, cx - newW / 2)),
+        y: Math.max(0, Math.min(IMG_H - newH, cy - newH / 2)),
+        w: newW, h: newH,
+      };
+    });
+  }, []);
 
   return (
     <div className="flex flex-col h-full bg-stone-950 relative">
@@ -124,9 +200,16 @@ export default function EventsPage() {
         {/* ── Map area ────────────────────────────────────── */}
         <div className="flex-1 relative overflow-hidden">
           <svg
-            viewBox={`${vbX} ${vbY} ${vbW} ${vbH}`}
-            className="w-full h-full"
+            ref={svgRef}
+            viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`}
+            className="w-full h-full select-none"
             preserveAspectRatio="xMidYMid meet"
+            onWheel={handleWheel}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            style={{ cursor: dragRef.current ? 'grabbing' : 'grab' }}
           >
             {/* Terrain background image */}
             <image
@@ -138,7 +221,7 @@ export default function EventsPage() {
             />
 
             {/* Slight dark overlay for readability */}
-            <rect x={vbX} y={vbY} width={vbW} height={vbH} fill="black" opacity="0.25" />
+            <rect x={viewBox.x} y={viewBox.y} width={viewBox.w} height={viewBox.h} fill="black" opacity="0.25" />
 
             {/* City dots */}
             {allLocations.map(loc => {
@@ -229,6 +312,25 @@ export default function EventsPage() {
           <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm rounded-xl px-4 py-2 z-10">
             <div className="text-amber-400 font-mono font-bold text-2xl leading-tight">{currentYear} BC</div>
             <div className="text-stone-400 text-xs">{visibleEvents.length} event{visibleEvents.length !== 1 ? 's' : ''} nearby</div>
+          </div>
+
+          {/* Zoom controls */}
+          <div className="absolute bottom-3 right-3 flex flex-col gap-1 z-10">
+            <button onClick={handleZoomIn} className="p-1.5 bg-black/60 backdrop-blur-sm rounded-lg text-stone-300 hover:text-white transition-colors" title="Zoom in">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <circle cx="11" cy="11" r="8" /><path strokeLinecap="round" d="M21 21l-4.35-4.35M8 11h6M11 8v6" />
+              </svg>
+            </button>
+            <button onClick={handleZoomOut} className="p-1.5 bg-black/60 backdrop-blur-sm rounded-lg text-stone-300 hover:text-white transition-colors" title="Zoom out">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <circle cx="11" cy="11" r="8" /><path strokeLinecap="round" d="M21 21l-4.35-4.35M8 11h6" />
+              </svg>
+            </button>
+            <button onClick={handleResetView} className="p-1.5 bg-black/60 backdrop-blur-sm rounded-lg text-stone-300 hover:text-white transition-colors" title="Reset view">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9m11.25-5.25v4.5m0-4.5h-4.5m4.5 0L15 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15m11.25 5.25v-4.5m0 4.5h-4.5m4.5 0L15 15" />
+              </svg>
+            </button>
           </div>
         </div>
 
