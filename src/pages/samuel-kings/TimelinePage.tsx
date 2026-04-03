@@ -5,7 +5,7 @@ import { assessmentColors, kingdomColors, kingdomLabel } from '../../utils/kingd
 import { toBibleGatewayUrl } from '../../utils/bibleLinks';
 
 // ── Timeline constants ──────────────────────────────────────────
-const TIMELINE_START = 1055;
+const TIMELINE_START = 1075;
 const TIMELINE_END = 555;
 const PX_PER_YEAR = 8;
 const TOTAL_WIDTH = (TIMELINE_START - TIMELINE_END) * PX_PER_YEAR;
