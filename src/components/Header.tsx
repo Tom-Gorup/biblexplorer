@@ -48,6 +48,16 @@ export function Header({ onMenuToggle }: Props) {
         >
           Samuel &amp; Kings
         </NavLink>
+        <NavLink
+          to="/easter"
+          className={({ isActive }) =>
+            `px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+              isActive ? 'bg-amber-500/15 text-amber-400 border border-amber-500/20' : 'text-stone-400 hover:text-white hover:bg-white/10'
+            }`
+          }
+        >
+          Easter
+        </NavLink>
         <span className="text-[10px] font-mono text-stone-600 bg-stone-800 px-2 py-0.5 rounded-md border border-stone-700/60 ml-2">ESV</span>
       </nav>
     </header>

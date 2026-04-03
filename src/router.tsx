@@ -8,6 +8,10 @@ const TimelinePage = lazy(() => import('./pages/samuel-kings/TimelinePage'));
 const EventsPage = lazy(() => import('./pages/samuel-kings/EventsPage'));
 const RelationshipsPage = lazy(() => import('./pages/samuel-kings/RelationshipsPage'));
 const ArcsPage = lazy(() => import('./pages/samuel-kings/ArcsPage'));
+const EasterPage = lazy(() => import('./pages/EasterPage'));
+const PassionWeekPage = lazy(() => import('./pages/easter/PassionWeekPage'));
+const ProphecyPage = lazy(() => import('./pages/easter/ProphecyPage'));
+const LastWordsPage = lazy(() => import('./pages/easter/LastWordsPage'));
 
 function Lazy({ children }: { children: ReactNode }) {
   return (
@@ -33,6 +37,16 @@ export const router = createBrowserRouter([
       { path: 'events', element: <Lazy><EventsPage /></Lazy> },
       { path: 'relationships', element: <Lazy><RelationshipsPage /></Lazy> },
       { path: 'arcs', element: <Lazy><ArcsPage /></Lazy> },
+    ],
+  },
+  {
+    path: '/easter',
+    element: <Lazy><EasterPage /></Lazy>,
+    children: [
+      { index: true, element: <Navigate to="passion-week" replace /> },
+      { path: 'passion-week', element: <Lazy><PassionWeekPage /></Lazy> },
+      { path: 'prophecy', element: <Lazy><ProphecyPage /></Lazy> },
+      { path: 'last-words', element: <Lazy><LastWordsPage /></Lazy> },
     ],
   },
 ]);
