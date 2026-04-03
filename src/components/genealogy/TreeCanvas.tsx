@@ -2,9 +2,9 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import cytoscape from 'cytoscape';
 import type { Core } from 'cytoscape';
 import dagre from 'cytoscape-dagre';
-import type { CytoscapeElement } from '../utils/buildGraph';
-import { cytoscapeStyles } from '../styles/cytoscape-styles';
-import { ZOOM_LIMITS } from '../utils/constants';
+import type { CytoscapeElement } from '../../utils/buildGraph';
+import { cytoscapeStyles } from '../../styles/cytoscape-styles';
+import { ZOOM_LIMITS } from '../../utils/constants';
 
 // Register dagre layout
 cytoscape.use(dagre);

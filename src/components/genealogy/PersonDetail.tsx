@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import type { Core } from 'cytoscape';
-import type { Person } from '../types';
-import { tribeColorMap } from '../utils/tribeColors';
-import { toBibleGatewayUrl, splitRefs } from '../utils/bibleLinks';
+import type { Person } from '../../types';
+import { tribeColorMap } from '../../utils/tribeColors';
+import { toBibleGatewayUrl, splitRefs } from '../../utils/bibleLinks';
 
 interface FamilyMember {
   id: string;

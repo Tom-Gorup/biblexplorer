@@ -1,4 +1,4 @@
-import type { SourceBook } from '../types';
+import type { SourceBook } from '../../types';
 
 interface Props {
   value: SourceBook | null;

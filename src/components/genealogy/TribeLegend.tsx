@@ -1,4 +1,4 @@
-import type { TribeMeta, TribeId } from '../types';
+import type { TribeMeta, TribeId } from '../../types';
 
 interface Props {
   tribes: TribeMeta[];
