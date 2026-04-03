@@ -7,13 +7,13 @@ import { toBibleGatewayUrl } from '../../utils/bibleLinks';
 // ── Timeline constants ──────────────────────────────────────────
 const TIMELINE_START = 1090;
 const TIMELINE_END = 555;
-const PX_PER_YEAR = 8;
-const TOTAL_WIDTH = (TIMELINE_START - TIMELINE_END) * PX_PER_YEAR;
-const BAR_H = 28;          // height of each king bar
-const ROW_GAP = 4;         // gap between stacked rows within a lane
-const LANE_PAD_Y = 8;      // top/bottom padding inside a lane
-
-function yearToX(year: number) { return (TIMELINE_START - year) * PX_PER_YEAR; }
+const DEFAULT_PPY = 8;
+const MIN_PPY = 3;
+const MAX_PPY = 20;
+const BAR_H = 28;
+const ROW_GAP = 4;
+const LANE_PAD_Y = 8;
+// const LABEL_W = 130; // reserved for future sticky label sizing
 
 const ASSESSMENT_LABELS: Record<string, string> = { good: 'Faithful', evil: 'Unfaithful', mixed: 'Mixed' };
 
@@ -107,7 +107,15 @@ export default function TimelinePage() {
   const [selectedProphet, setSelectedProphet] = useState<Prophet | null>(null);
   const [crosshairX, setCrosshairX] = useState<number | null>(null);
   const [crosshairYear, setCrosshairYear] = useState<number | null>(null);
+  const [ppy, setPpy] = useState(DEFAULT_PPY);
   const contentRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const totalWidth = (TIMELINE_START - TIMELINE_END) * ppy;
+  const yearToX = useCallback((year: number) => (TIMELINE_START - year) * ppy, [ppy]);
+
+  const handleZoomIn = useCallback(() => setPpy(p => Math.min(p + 2, MAX_PPY)), []);
+  const handleZoomOut = useCallback(() => setPpy(p => Math.max(p - 2, MIN_PPY)), []);
 
   const lanes = useMemo(() => {
     const raw = [
@@ -157,9 +165,9 @@ export default function TimelinePage() {
     if (!content) return;
     const rect = content.getBoundingClientRect();
     const xInContent = e.clientX - rect.left;
-    // Convert pixel position to year: yearToX(year) = (TIMELINE_START - year) * PX_PER_YEAR
-    // So year = TIMELINE_START - (xInContent - 56) / PX_PER_YEAR  (56 = px-14 padding)
-    const year = Math.round(TIMELINE_START - (xInContent - 56) / PX_PER_YEAR);
+    // Convert pixel position to year: yearToX(year) = (TIMELINE_START - year) * ppy
+    // So year = TIMELINE_START - (xInContent - 56) / ppy  (56 = px-14 padding)
+    const year = Math.round(TIMELINE_START - (xInContent - 56) / ppy);
     if (year >= TIMELINE_END && year <= TIMELINE_START) {
       setCrosshairX(e.clientX - rect.left);
       setCrosshairYear(year);
@@ -167,7 +175,7 @@ export default function TimelinePage() {
       setCrosshairX(null);
       setCrosshairYear(null);
     }
-  }, []);
+  }, [ppy]);
 
   const handleMouseLeave = useCallback(() => {
     setCrosshairX(null);
@@ -176,12 +184,27 @@ export default function TimelinePage() {
 
   return (
     <div className="flex flex-col h-full bg-stone-900 relative">
-      <div className="flex-1 overflow-x-auto overflow-y-auto">
+      {/* ── Zoom controls ────────────────────────────────── */}
+      <div className="absolute top-2 right-3 z-20 flex items-center gap-1 bg-stone-800/90 backdrop-blur border border-stone-700/80 rounded-lg px-1 py-0.5">
+        <button onClick={handleZoomOut} className="p-1 text-stone-400 hover:text-white transition-colors" title="Zoom out">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <circle cx="11" cy="11" r="8" /><path strokeLinecap="round" d="M21 21l-4.35-4.35M8 11h6" />
+          </svg>
+        </button>
+        <span className="text-[10px] text-stone-500 font-mono w-8 text-center">{ppy}x</span>
+        <button onClick={handleZoomIn} className="p-1 text-stone-400 hover:text-white transition-colors" title="Zoom in">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <circle cx="11" cy="11" r="8" /><path strokeLinecap="round" d="M21 21l-4.35-4.35M8 11h6M11 8v6" />
+          </svg>
+        </button>
+      </div>
+
+      <div ref={scrollRef} className="flex-1 overflow-x-auto overflow-y-auto">
         <div
           ref={contentRef}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
-          style={{ width: TOTAL_WIDTH + 120 }}
+          style={{ width: totalWidth + 120 }}
           className="relative px-14 pt-6 pb-20 min-h-full"
         >
 
@@ -217,8 +240,8 @@ export default function TimelinePage() {
             const kc = kingdomColors[lane.key];
             const laneH = lane.rows.length * (BAR_H + ROW_GAP) + LANE_PAD_Y * 2;
             return (
-              <div key={lane.key} className="mb-4">
-                <div className="flex items-center gap-2 mb-1.5">
+              <div key={lane.key} className="mb-4 relative">
+                <div className="sticky left-0 z-[4] flex items-center gap-2 mb-1.5 bg-stone-900/90 backdrop-blur-sm w-fit pr-3 rounded-r-lg">
                   <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: kc.border }} />
                   <span className="text-xs font-semibold text-stone-300">{kingdomLabel[lane.key]}</span>
                   <span className="text-[10px] text-stone-600">{lane.kings.length} kings</span>
@@ -230,7 +253,7 @@ export default function TimelinePage() {
                   {lane.rows.map((row, rowIdx) =>
                     row.map(king => {
                       const left = yearToX(king.reignStart);
-                      const width = Math.max(king.reignYears * PX_PER_YEAR, 18);
+                      const width = Math.max(king.reignYears * ppy, 18);
                       const top = LANE_PAD_Y + rowIdx * (BAR_H + ROW_GAP);
                       const ac = assessmentColors[king.assessment];
                       const isSel = selected?.id === king.id;
@@ -272,8 +295,8 @@ export default function TimelinePage() {
           })}
 
           {/* ── Prophets lane ──────────────────────────────── */}
-          <div className="mb-4">
-            <div className="flex items-center gap-2 mb-1.5">
+          <div className="mb-4 relative">
+            <div className="sticky left-0 z-[4] flex items-center gap-2 mb-1.5 bg-stone-900/90 backdrop-blur-sm w-fit pr-3 rounded-r-lg">
               <span className="w-3 h-3 rounded-full shrink-0 bg-violet-500" />
               <span className="text-xs font-semibold text-stone-300">Prophets</span>
               <span className="text-[10px] text-stone-600">{PROPHETS.length} prophets</span>
@@ -286,7 +309,7 @@ export default function TimelinePage() {
                 row.map(prophet => {
                   const left = yearToX(prophet.start);
                   const span = Math.max(prophet.start - prophet.end, 1);
-                  const width = Math.max(span * PX_PER_YEAR, 18);
+                  const width = Math.max(span * ppy, 18);
                   const top = LANE_PAD_Y + rowIdx * (BAR_H + ROW_GAP);
                   const isSel = selectedProphet?.id === prophet.id;
                   const isKingLinked = highlightedProphetIds.has(prophet.id);
