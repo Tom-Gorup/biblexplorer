@@ -20,7 +20,7 @@ export interface SKCharacter {
 }
 
 export interface King extends SKCharacter {
-  role: 'king';
+  role: 'king' | 'queen';
   kingdom: Kingdom;
   reignStart: number;
   reignEnd: number;

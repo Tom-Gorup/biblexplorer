@@ -186,7 +186,6 @@ const military: SKCharacter[] = [
     id: 'naaman',
     name: 'Naaman',
     role: 'military',
-    kingdom: 'israel',
     significance: 'notable',
     description: 'Commander of the Aramean army, struck with leprosy. Healed by Elisha after washing seven times in the Jordan. Declared faith in the God of Israel.',
     sources: ['2kgs'],
@@ -245,7 +244,7 @@ const family: SKCharacter[] = [
   {
     id: 'tamar-david',
     name: 'Tamar',
-    role: 'queen',
+    role: 'official',
     significance: 'minor',
     description: 'Daughter of David and sister of Absalom. Violated by her half-brother Amnon, leading to Absalom\'s revenge and eventual rebellion.',
     sources: ['2sam'],

@@ -142,7 +142,7 @@ const political: SKRelationship[] = [
   { source: 'solomon', target: 'queen-of-sheba', type: 'ally', description: 'Queen of Sheba visited Solomon and exchanged lavish gifts', ref: '1 Kgs 10:1-13', bidirectional: true },
   { source: 'ahab-king', target: 'jezebel', type: 'marriage', description: 'Ahab married Jezebel, sealing alliance with Phoenicia', ref: '1 Kgs 16:31', bidirectional: true },
   { source: 'ahab-king', target: 'jehoshaphat', type: 'ally', description: 'Military alliance cemented by marriage of their children', ref: '1 Kgs 22:2-4', bidirectional: true },
-  { source: 'joram-king', target: 'athaliah', type: 'parent-child', description: 'Athaliah was mother of Ahaziah and daughter of Ahab', ref: '2 Kgs 8:18' },
+  { source: 'joram-king', target: 'athaliah', type: 'marriage', description: 'Athaliah was wife of Joram and mother of Ahaziah', ref: '2 Kgs 8:18', bidirectional: true },
   { source: 'asa', target: 'ben-hadad', type: 'treaty', description: 'Asa bribed Ben-hadad to attack Israel and relieve Judah', ref: '1 Kgs 15:18-20', bidirectional: true },
   { source: 'ahab-king', target: 'ben-hadad', type: 'enemy', description: 'Ben-hadad besieged Samaria; Ahab defeated him twice', ref: '1 Kgs 20:1-34', bidirectional: true },
   { source: 'ahab-king', target: 'ben-hadad', type: 'treaty', description: 'Ahab spared Ben-hadad and made a treaty with him', ref: '1 Kgs 20:34' },

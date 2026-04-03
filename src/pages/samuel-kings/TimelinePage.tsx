@@ -29,13 +29,13 @@ interface Prophet {
 }
 
 const PROPHETS: Prophet[] = [
-  { id: 'samuel',   name: 'Samuel',   start: 1080, end: 1005, message: 'Obedience is better than sacrifice',                           ref: '1 Sam 15:22',      targetKings: ['saul-king', 'david'] },
+  { id: 'samuel',   name: 'Samuel',   start: 1080, end: 1012, message: 'Obedience is better than sacrifice',                           ref: '1 Sam 15:22',      targetKings: ['saul', 'david'] },
   { id: 'nathan',   name: 'Nathan',   start: 1010, end: 970,  message: 'Confronted David, promised eternal dynasty',                    ref: '2 Sam 7:12-16',    targetKings: ['david', 'solomon'] },
   { id: 'elijah',   name: 'Elijah',   start: 870,  end: 850,  message: '"The LORD, He is God!" — confronted Baal worship',              ref: '1 Kgs 18:39',      targetKings: ['ahab-king', 'ahaziah-israel'] },
-  { id: 'elisha',   name: 'Elisha',   start: 850,  end: 800,  message: 'Miracles demonstrating God\'s power and compassion',            ref: '2 Kgs 2-8',        targetKings: ['joram-israel', 'jehu-king', 'jehoahaz-israel', 'jehoash-israel'] },
+  { id: 'elisha',   name: 'Elisha',   start: 850,  end: 795,  message: 'Miracles demonstrating God\'s power and compassion',            ref: '2 Kgs 2-8',        targetKings: ['joram-israel', 'jehu-king', 'jehoahaz-israel', 'jehoash-israel'] },
   { id: 'amos',     name: 'Amos',     start: 760,  end: 750,  message: 'Social justice, judgment on Israel\'s oppression',              ref: 'Amos 5:24',        targetKings: ['jeroboam-ii'] },
   { id: 'hosea',    name: 'Hosea',    start: 750,  end: 715,  message: 'God\'s faithful love despite Israel\'s unfaithfulness',         ref: 'Hosea 2:19-20',    targetKings: ['jeroboam-ii', 'menahem', 'pekah', 'hoshea'] },
-  { id: 'isaiah',   name: 'Isaiah',   start: 740,  end: 680,  message: 'Messianic prophecies, trust in God alone',                     ref: 'Isa 7:14; 9:6-7',  targetKings: ['ahaz', 'hezekiah'] },
+  { id: 'isaiah',   name: 'Isaiah',   start: 740,  end: 680,  message: 'Messianic prophecies, trust in God alone',                     ref: 'Isa 7:14; 9:6-7',  targetKings: ['azariah-king', 'jotham', 'ahaz', 'hezekiah'] },
   { id: 'micah',    name: 'Micah',    start: 735,  end: 700,  message: 'Justice, mercy, walk humbly with God',                         ref: 'Micah 6:8',        targetKings: ['jotham', 'ahaz', 'hezekiah'] },
   { id: 'huldah',   name: 'Huldah',   start: 622,  end: 622,  message: 'Confirmed the Book of the Law for Josiah',                     ref: '2 Kgs 22:14-20',   targetKings: ['josiah'] },
   { id: 'jeremiah', name: 'Jeremiah', start: 627,  end: 586,  message: 'New covenant coming, judgment on unfaithful Judah',             ref: 'Jer 31:31-34',     targetKings: ['josiah', 'jehoiakim', 'jehoiachin', 'zedekiah-king'] },

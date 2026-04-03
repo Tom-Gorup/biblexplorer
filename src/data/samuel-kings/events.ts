@@ -155,7 +155,7 @@ export const allEvents: SKEvent[] = [
   {
     id: 'david-bathsheba',
     name: 'David and Bathsheba',
-    category: 'death',
+    category: 'prophecy',
     year: 990,
     description: 'David committed adultery with Bathsheba and arranged the death of her husband Uriah the Hittite. Nathan confronted him.',
     location: 'Jerusalem',
@@ -425,7 +425,7 @@ export const allEvents: SKEvent[] = [
     year: 722,
     description: 'Assyria conquered Samaria after a three-year siege and deported the Israelites, ending the northern kingdom forever.',
     location: 'Samaria',
-    participants: ['hoshea', 'sennacherib'],
+    participants: ['hoshea', 'shalmaneser'],
     sources: ['2kgs'],
     primaryRef: '2 Kgs 17:5-6',
     significance: 'major',
@@ -529,7 +529,7 @@ export const allEvents: SKEvent[] = [
   {
     id: 'jehoiachin-released',
     name: 'Release of Jehoiachin',
-    category: 'death',
+    category: 'exile',
     year: 561,
     description: 'Evil-merodach released Jehoiachin from prison and gave him a place of honor at the Babylonian court — a glimmer of hope for the Davidic line.',
     location: 'Babylon',

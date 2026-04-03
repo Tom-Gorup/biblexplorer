@@ -185,7 +185,7 @@ const judahKings: King[] = [
   {
     id: 'athaliah',
     name: 'Athaliah',
-    role: 'king',
+    role: 'queen',
     kingdom: 'judah',
     significance: 'notable',
     description: 'Daughter of Ahab who seized Judah\'s throne after her son Ahaziah\'s death. Massacred the royal family but Joash was hidden. The only queen regnant of Judah.',
@@ -329,7 +329,7 @@ const judahKings: King[] = [
     reignEnd: 642,
     reignYears: 55,
     orderInKingdom: 14,
-    assessment: 'evil',
+    assessment: 'mixed',
     endOfReign: 'Died naturally after repentance',
   },
   {
@@ -459,7 +459,7 @@ const israelKings: King[] = [
     reignYears: 22,
     orderInKingdom: 1,
     assessment: 'evil',
-    endOfReign: 'Died; struck by God',
+    endOfReign: 'Died naturally',
     contemporaryKings: ['rehoboam', 'abijah-rehoboam'],
     contemporaryProphets: ['ahijah-prophet', 'man-of-god-judah'],
   },
