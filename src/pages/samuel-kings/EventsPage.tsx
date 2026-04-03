@@ -243,7 +243,7 @@ export default function EventsPage() {
               return (
                 <g key={loc.id}>
                   {isActive && (
-                    <circle cx={pos.x} cy={pos.y} r={12} fill="#facc15" opacity={0.15} />
+                    <circle cx={pos.x} cy={pos.y} r={8} fill="#facc15" opacity={0.12} />
                   )}
                   <circle
                     cx={pos.x} cy={pos.y}
@@ -281,17 +281,17 @@ export default function EventsPage() {
               return (
                 <g key={event.id} onClick={() => handleEventClick(event)} style={{ cursor: 'pointer' }} opacity={opacity}>
                   {isSel && (
-                    <circle cx={pos.x} cy={pos.y} r={18} fill="none" stroke={cat.color} strokeWidth={1.5} opacity={0.6}>
-                      <animate attributeName="r" from="12" to="24" dur="1.5s" repeatCount="indefinite" />
+                    <circle cx={pos.x} cy={pos.y} r={10} fill="none" stroke={cat.color} strokeWidth={1} opacity={0.6}>
+                      <animate attributeName="r" from="7" to="14" dur="1.5s" repeatCount="indefinite" />
                       <animate attributeName="opacity" from="0.6" to="0" dur="1.5s" repeatCount="indefinite" />
                     </circle>
                   )}
                   <circle
                     cx={pos.x} cy={pos.y}
-                    r={isSel ? 8 : event.significance === 'major' ? 7 : 5}
+                    r={isSel ? 5 : event.significance === 'major' ? 4 : 3}
                     fill={cat.color}
                     stroke="#000"
-                    strokeWidth={1}
+                    strokeWidth={0.5}
                     opacity={0.9}
                   />
                   {(isSel || labeledEventIds.has(event.id)) && (
