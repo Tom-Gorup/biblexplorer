@@ -1,6 +1,6 @@
-import { useState, useMemo, useCallback, useRef } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { characterArcs } from '../../data/samuel-kings';
-import { allKings, allSKCharacters } from '../../data/samuel-kings';
+// allKings, allSKCharacters available via data/samuel-kings if needed
 import type { ArcPoint } from '../../types/samuel-kings';
 import { toBibleGatewayUrl } from '../../utils/bibleLinks';
 
@@ -17,9 +17,9 @@ const ARC_CHARS: { id: string; name: string; color: string }[] = [
 ];
 
 // ── SVG dimensions ──────────────────────────────────────────────
-const CHART_PAD = { top: 30, right: 30, bottom: 50, left: 50 };
-const CHART_W = 1200;
-const CHART_H = 600;
+const CHART_PAD = { top: 30, right: 20, bottom: 50, left: 55 };
+const CHART_W = 1400;
+const CHART_H = 550;
 const INNER_W = CHART_W - CHART_PAD.left - CHART_PAD.right;
 const INNER_H = CHART_H - CHART_PAD.top - CHART_PAD.bottom;
 
@@ -47,9 +47,51 @@ export default function ArcsPage() {
   const [crosshairYear, setCrosshairYear] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
+  // Auto-fit view to selected characters' date range
+  const autoFitRange = useMemo(() => {
+    let earliest = MAX_YEAR;
+    let latest = MIN_YEAR;
+    for (const c of ARC_CHARS) {
+      if (!selected.has(c.id)) continue;
+      const pts = characterArcs[c.id];
+      if (!pts || pts.length === 0) continue;
+      for (const p of pts) {
+        if (p.year > latest) latest = p.year;
+        if (p.year < earliest) earliest = p.year;
+      }
+    }
+    // Add padding (10% on each side)
+    const span = latest - earliest || 100;
+    const pad = Math.max(20, span * 0.12);
+    return { min: Math.min(MIN_YEAR, latest + pad), max: Math.max(MAX_YEAR, earliest - pad) };
+  }, [selected]);
+
   // Zoom: viewBox range on the X axis (year range visible)
-  const [viewMinYear, setViewMinYear] = useState(MIN_YEAR);
-  const [viewMaxYear, setViewMaxYear] = useState(MAX_YEAR);
+  const [viewMinYear, setViewMinYear] = useState(() => {
+    // Initialize to Saul+David range
+    let latest = 0, earliest = 9999;
+    for (const id of DEFAULT_SELECTED) {
+      const pts = characterArcs[id];
+      if (!pts) continue;
+      for (const p of pts) { if (p.year > latest) latest = p.year; if (p.year < earliest) earliest = p.year; }
+    }
+    return latest + 15;
+  });
+  const [viewMaxYear, setViewMaxYear] = useState(() => {
+    let earliest = 9999;
+    for (const id of DEFAULT_SELECTED) {
+      const pts = characterArcs[id];
+      if (!pts) continue;
+      for (const p of pts) { if (p.year < earliest) earliest = p.year; }
+    }
+    return earliest - 15;
+  });
+
+  // Auto-fit when selection changes
+  useEffect(() => {
+    setViewMinYear(autoFitRange.min);
+    setViewMaxYear(autoFitRange.max);
+  }, [autoFitRange]);
 
   // Dynamic year-to-X based on current view
   const vYearToX = useCallback((year: number): number => {
@@ -101,10 +143,7 @@ export default function ArcsPage() {
     setViewMaxYear(MAX_YEAR);
   }, []);
 
-  const charMap = useMemo(() => {
-    const all = [...allKings, ...allSKCharacters];
-    return new Map(all.map(c => [c.id, c]));
-  }, []);
+  // allKings and allSKCharacters used for character lookups when needed
 
   const toggleChar = useCallback((id: string) => {
     setSelected(prev => {
@@ -127,7 +166,7 @@ export default function ArcsPage() {
   // Year grid lines (dynamic based on zoom)
   const yearMarks = useMemo(() => {
     const span = viewMinYear - viewMaxYear;
-    const step = span > 300 ? 50 : span > 150 ? 25 : 10;
+    const step = span > 300 ? 50 : span > 120 ? 25 : span > 60 ? 10 : 5;
     const marks = [];
     const start = Math.floor(viewMinYear / step) * step;
     for (let y = start; y >= viewMaxYear; y -= step) marks.push(y);
@@ -180,14 +219,13 @@ export default function ArcsPage() {
         </div>
       </div>
 
-      {/* ── Chart ───────────────────────────────────────── */}
-      <div className="flex-1 flex overflow-hidden">
-        <div className="flex-1 relative p-2">
+      {/* ── Chart (full width) ─────────────────────────── */}
+      <div className="flex-1 overflow-hidden relative">
           <svg
             ref={svgRef}
             viewBox={`0 0 ${CHART_W} ${CHART_H}`}
             className="w-full h-full select-none"
-            preserveAspectRatio="xMidYMid meet"
+            preserveAspectRatio="none"
             onMouseMove={handleChartMouseMove}
             onMouseLeave={handleChartMouseLeave}
             onWheel={handleChartWheel}
@@ -362,69 +400,46 @@ export default function ArcsPage() {
               </g>
             )}
           </svg>
-        </div>
+      </div>
 
-        {/* ── Side panel ─────────────────────────────────── */}
-        <div className="w-72 border-l border-stone-800 bg-stone-950/95 overflow-y-auto hidden md:block shrink-0">
-          {selectedPoint ? (
-            <div className="p-4">
-              <div className="flex items-start justify-between mb-2">
-                <div>
-                  <h2 className="text-white font-bold text-base leading-tight">{selectedPoint.point.label}</h2>
-                  <p className="text-xs mt-1" style={{ color: selectedPoint.color }}>{selectedPoint.charName} · ~{selectedPoint.point.year} BC</p>
-                </div>
-                <button onClick={() => setSelectedPoint(null)} className="text-stone-500 hover:text-white p-0.5">
+      {/* ── Bottom detail panel (shows when point selected) ── */}
+      {selectedPoint && (
+        <div className="bg-stone-800 border-t border-stone-600 px-4 py-3 shrink-0">
+          <div className="flex items-start gap-4 max-w-3xl">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: selectedPoint.color }} />
+                <h2 className="text-white font-bold text-base leading-tight truncate">{selectedPoint.point.label}</h2>
+                <button onClick={() => setSelectedPoint(null)} className="text-stone-500 hover:text-white p-0.5 ml-auto shrink-0">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="flex-1 bg-stone-800 rounded-full h-2 overflow-hidden">
-                  <div className="h-full rounded-full" style={{ width: `${selectedPoint.point.influence}%`, backgroundColor: selectedPoint.color }} />
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-xs font-mono" style={{ color: selectedPoint.color }}>{selectedPoint.charName} · ~{selectedPoint.point.year} BC</span>
+                <div className="flex items-center gap-1.5 flex-1 max-w-48">
+                  <div className="flex-1 bg-stone-700 rounded-full h-1.5 overflow-hidden">
+                    <div className="h-full rounded-full" style={{ width: `${selectedPoint.point.influence}%`, backgroundColor: selectedPoint.color }} />
+                  </div>
+                  <span className="text-stone-500 text-[10px] font-mono">{selectedPoint.point.influence}</span>
                 </div>
-                <span className="text-stone-400 text-xs font-mono">{selectedPoint.point.influence}/100</span>
-              </div>
-              {/* Character description */}
-              {charMap.get(selectedPoint.charId) && (
-                <p className="text-stone-400 text-xs leading-relaxed mb-3">
-                  {charMap.get(selectedPoint.charId)!.description}
-                </p>
-              )}
-              <a
-                href={toBibleGatewayUrl(selectedPoint.point.ref)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 transition-colors"
-              >
-                {selectedPoint.point.ref}
-                <svg className="w-3 h-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                </svg>
-              </a>
-            </div>
-          ) : (
-            <div className="p-4">
-              <h3 className="text-white text-sm font-semibold mb-2">Rise &amp; Fall</h3>
-              <p className="text-stone-500 text-xs leading-relaxed mb-4">
-                Watch the trajectories of biblical characters — their rise to power, moments of faith and failure, and how their stories ended.
-              </p>
-              <p className="text-stone-500 text-xs leading-relaxed mb-4">
-                Each dot is a turning point. Hover to preview, click for details and a link to the scripture.
-              </p>
-              <h4 className="text-stone-600 text-[10px] uppercase tracking-wider mb-2">What to look for</h4>
-              <ul className="space-y-2 text-stone-400 text-xs">
-                <li><span className="text-amber-400 font-semibold">Saul &amp; David</span> — Watch Saul's decline cross David's rise. The moment the Spirit departs Saul is the moment David is anointed.</li>
-                <li><span className="text-violet-400 font-semibold">Elijah</span> — The dramatic drop from Carmel's peak to Horeb's despair happens in days. Then God speaks in a still small voice.</li>
-                <li><span className="text-blue-400 font-semibold">Solomon</span> — A perfect parabola of wisdom, glory, and tragic decline into idolatry.</li>
-              </ul>
-              <div className="mt-4 pt-4 border-t border-stone-800">
-                <p className="text-stone-600 text-xs">Use presets or toggle characters above. Hover dots for events.</p>
+                <a
+                  href={toBibleGatewayUrl(selectedPoint.point.ref)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 transition-colors shrink-0"
+                >
+                  {selectedPoint.point.ref}
+                  <svg className="w-3 h-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                  </svg>
+                </a>
               </div>
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
