@@ -93,6 +93,7 @@ export default function RelationshipsPage() {
   }, []);
   const [hiddenTypes, setHiddenTypes] = useState<Set<string>>(new Set());
   const [legendOpen, setLegendOpen] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
 
   const elements = useMemo(
     () => buildSKGraph(allKings, allSKCharacters, allSKRelationships),
@@ -147,6 +148,29 @@ export default function RelationshipsPage() {
       <div className="flex flex-1 overflow-hidden relative">
         {/* ── Canvas ──────────────────────────────────────── */}
         <div className="flex-1 relative">
+          {/* Intro overlay */}
+          {showIntro && !selectedChar && (
+            <div className="absolute top-4 right-4 z-20 w-72 bg-stone-900/95 backdrop-blur-xl border border-stone-700/80 rounded-xl shadow-2xl p-4">
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="text-white text-sm font-semibold">Character Relationships</h3>
+                <button onClick={() => setShowIntro(false)} className="text-stone-500 hover:text-white p-0.5">
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <p className="text-stone-400 text-xs leading-relaxed mb-3">
+                Explore the political, prophetic, and personal connections between characters in Samuel &amp; Kings. Tap a character for their story. Scroll to zoom, use presets to filter.
+              </p>
+              <h4 className="text-stone-500 text-[10px] uppercase tracking-wider mb-1.5">What to explore</h4>
+              <ul className="space-y-1.5 text-xs">
+                <li><span className="text-blue-400 font-semibold">Royal Succession</span> <span className="text-stone-500">— How power transferred, often through violence</span></li>
+                <li><span className="text-violet-400 font-semibold">Prophetic Ministry</span> <span className="text-stone-500">— Which prophets confronted which kings</span></li>
+                <li><span className="text-green-400 font-semibold">Political Web</span> <span className="text-stone-500">— Alliances, enemies, and betrayals</span></li>
+              </ul>
+            </div>
+          )}
+
           <RelationshipCanvas
             elements={elements}
             selectedId={selectedId}
