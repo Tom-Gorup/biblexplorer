@@ -17,7 +17,7 @@ const ARC_CHARS: { id: string; name: string; color: string }[] = [
 ];
 
 // ── SVG dimensions ──────────────────────────────────────────────
-const CHART_PAD = { top: 25, right: 20, bottom: 60, left: 55 };
+const CHART_PAD = { top: 25, right: 20, bottom: 55, left: 55 };
 
 // All arcs span from ~1050 BC to ~609 BC
 const MIN_YEAR = 1060;
@@ -281,12 +281,13 @@ export default function ArcsPage() {
 
       {/* ── Chart (full width) ─────────────────────────── */}
       <div className="flex flex-1 overflow-hidden">
-        <div ref={containerRef} className="flex-1 overflow-hidden relative">
+        <div className="flex-1 flex flex-col overflow-hidden">
+        <div ref={containerRef} className="flex-1 overflow-hidden relative min-h-0">
           <svg
             ref={svgRef}
             viewBox={`0 0 ${CHART_W} ${CHART_H}`}
             className="w-full h-full select-none"
-            preserveAspectRatio="xMidYMid meet"
+            preserveAspectRatio="xMidYMax meet"
             onMouseMove={handleMouseMoveDrag}
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
@@ -303,8 +304,8 @@ export default function ArcsPage() {
                   stroke="#292524" strokeWidth={1}
                 />
                 <text
-                  x={vYearToX(y)} y={CHART_PAD.top + INNER_H + 22}
-                  fill="#a8a29e" fontSize="12" textAnchor="middle" fontFamily="monospace" fontWeight="500"
+                  x={vYearToX(y)} y={CHART_PAD.top + INNER_H + 25}
+                  fill="#d6d3d1" fontSize="11" textAnchor="middle" fontFamily="monospace" fontWeight="500"
                 >
                   {y} BC
                 </text>
@@ -464,6 +465,8 @@ export default function ArcsPage() {
               </g>
             )}
           </svg>
+        </div>
+
         </div>
 
         {/* ── Side panel ─────────────────────────────────── */}
