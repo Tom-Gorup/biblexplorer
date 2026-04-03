@@ -8,7 +8,7 @@ export function useSelectedPerson(persons: Person[]) {
   const selectedPerson = selectedId ? personMap.get(selectedId) || null : null;
 
   const selectPerson = useCallback((id: string | null) => {
-    setSelectedId(id);
+    setSelectedId(prev => id !== null && prev === id ? null : id);
   }, []);
 
   return { selectedPerson, selectedId, selectPerson };

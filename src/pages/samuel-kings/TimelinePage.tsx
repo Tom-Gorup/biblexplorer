@@ -143,12 +143,12 @@ export default function TimelinePage() {
   }, []);
 
   const handleKingClick = useCallback((king: King) => {
-    setSelected(king);
+    setSelected(prev => prev?.id === king.id ? null : king);
     setSelectedProphet(null);
   }, []);
 
   const handleProphetClick = useCallback((prophet: Prophet) => {
-    setSelectedProphet(prophet);
+    setSelectedProphet(prev => prev?.id === prophet.id ? null : prophet);
     setSelected(null);
   }, []);
 

@@ -56,7 +56,10 @@ function getRelLabel(type: string): string {
 
 // ── Component ───────────────────────────────────────────────────
 export default function RelationshipsPage() {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedIdRaw] = useState<string | null>(null);
+  const setSelectedId = useCallback((id: string | null) => {
+    setSelectedIdRaw(prev => id !== null && prev === id ? null : id);
+  }, []);
   const [hiddenTypes, setHiddenTypes] = useState<Set<string>>(new Set());
   const [legendOpen, setLegendOpen] = useState(false);
 
