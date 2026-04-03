@@ -22,7 +22,7 @@ export const allLocations: SKLocation[] = [
   // --- Southern / Judah Sites ---
   { id: 'lachish',       name: 'Lachish',         x: 34.8489, y: 31.5640, kingdom: 'judah',  description: 'Major fortified city of Judah. Besieged by Sennacherib.' },
   { id: 'beersheba',     name: 'Beersheba',       x: 34.7913, y: 31.2518, kingdom: 'judah',  description: 'Southern boundary of the kingdom.' },
-  { id: 'megiddo',       name: 'Megiddo',         x: 35.1845, y: 32.5847, description: 'Strategic fortress city. Where Josiah was killed fighting Pharaoh Neco.' },
+  { id: 'megiddo',       name: 'Megiddo',         x: 35.1845, y: 32.5847, kingdom: 'israel', description: 'Strategic fortress city. Where Josiah was killed fighting Pharaoh Neco.' },
   // --- Battlefields ---
   { id: 'gilboa',        name: 'Mount Gilboa',    x: 35.4156, y: 32.5003, description: 'Where Saul and Jonathan fell in battle against the Philistines.' },
   { id: 'valley-of-elah', name: 'Valley of Elah', x: 34.9547, y: 31.6935, kingdom: 'judah', description: 'Where David killed Goliath.' },
@@ -30,7 +30,7 @@ export const allLocations: SKLocation[] = [
   // --- Nearby / Foreign ---
   { id: 'damascus',      name: 'Damascus',        x: 36.2920, y: 33.5130, description: 'Capital of Aram (Syria). Ruled by Ben-hadad and Hazael.' },
   { id: 'tyre',          name: 'Tyre',            x: 35.1956, y: 33.2705, description: 'Phoenician port city. King Hiram allied with David and Solomon.' },
-  { id: 'nineveh',       name: 'Nineveh',         x: 36.3600, y: 36.3600, description: 'Capital of the Assyrian empire that conquered Israel in 722 BC.' },
+  { id: 'nineveh',       name: 'Nineveh',         x: 43.1500, y: 36.3600, description: 'Capital of the Assyrian empire that conquered Israel in 722 BC.' },
   { id: 'babylon',       name: 'Babylon',         x: 44.4200, y: 32.5400, description: 'Capital of Babylonian empire. Nebuchadnezzar destroyed Jerusalem.' },
   // --- Other Significant Sites ---
   { id: 'shiloh',        name: 'Shiloh',          x: 35.2892, y: 32.0554, kingdom: 'israel', description: 'Where the Tabernacle stood and Samuel grew up.' },

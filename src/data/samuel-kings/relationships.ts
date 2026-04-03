@@ -179,7 +179,7 @@ const betrayals: SKRelationship[] = [
 // --- Key Family Relationships ---
 const familyRelations: SKRelationship[] = [
   { source: 'saul', target: 'abner', type: 'ally', description: 'Abner was Saul\'s cousin and army commander', ref: '1 Sam 14:50' },
-  { source: 'abner', target: 'mephibosheth', type: 'ally', description: 'Abner initially supported Saul\'s house through Ishbosheth', ref: '2 Sam 2:8-9' },
+  { source: 'abner', target: 'ishbosheth', type: 'ally', description: 'Abner initially supported Saul\'s house through Ishbosheth', ref: '2 Sam 2:8-9' },
   { source: 'david', target: 'mephibosheth', type: 'ally', description: 'David showed kindness to Mephibosheth for Jonathan\'s sake', ref: '2 Sam 9:1-13' },
   { source: 'david', target: 'joab', type: 'ally', description: 'Joab served as David\'s commander throughout his reign', ref: '2 Sam 8:16' },
   { source: 'solomon', target: 'adonijah', type: 'murder', description: 'Solomon had Adonijah executed after he requested Abishag', ref: '1 Kgs 2:23-25' },
@@ -196,6 +196,15 @@ const familyRelations: SKRelationship[] = [
   { source: 'david', target: 'rizpah', type: 'ally', description: 'David was moved by Rizpah\'s vigil to bury Saul\'s family properly', ref: '2 Sam 21:11-14' },
 ];
 
+// --- Additional Relationships ---
+const additionalRelations: SKRelationship[] = [
+  { source: 'david', target: 'uriah', type: 'murder', description: "David arranged Uriah's death in battle to take Bathsheba", ref: '2 Sam 11:14-17' },
+  { source: 'jehoiada', target: 'joash-king', type: 'anointing', description: "Jehoiada crowned Joash and overthrew Athaliah", ref: '2 Kgs 11:12' },
+  { source: 'pharaoh-neco', target: 'josiah', type: 'murder', description: "Neco killed Josiah in battle at Megiddo", ref: '2 Kgs 23:29' },
+  { source: 'pharaoh-neco', target: 'shallum-josiah', type: 'enemy', description: "Neco deposed Jehoahaz and exiled him to Egypt", ref: '2 Kgs 23:33' },
+  { source: 'pharaoh-neco', target: 'jehoiakim', type: 'counsel', description: "Neco installed Jehoiakim as vassal king of Judah", ref: '2 Kgs 23:34' },
+];
+
 export const allSKRelationships: SKRelationship[] = [
   ...unitedSuccessions,
   ...prophetKingRelations,
@@ -204,4 +213,5 @@ export const allSKRelationships: SKRelationship[] = [
   ...political,
   ...betrayals,
   ...familyRelations,
+  ...additionalRelations,
 ];

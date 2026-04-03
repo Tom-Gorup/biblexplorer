@@ -301,7 +301,7 @@ const family: SKCharacter[] = [
   {
     id: 'rizpah',
     name: 'Rizpah',
-    role: 'queen',
+    role: 'official',
     significance: 'minor',
     description: 'Concubine of Saul. Guarded the bodies of her executed sons from birds and wild animals for months, moving David to properly bury Saul\'s family.',
     sources: ['2sam'],
@@ -481,10 +481,57 @@ const foreigners: SKCharacter[] = [
   },
 ];
 
+// --- Additional Characters ---
+const additional: SKCharacter[] = [
+  {
+    id: 'ishbosheth',
+    name: 'Ishbosheth',
+    alternateNames: ['Ish-bosheth', 'Esh-baal'],
+    role: 'official',
+    kingdom: 'united',
+    significance: 'notable',
+    description: "Saul's son whom Abner made king over Israel after Saul's death. Rival to David for two years before being assassinated.",
+    sources: ['2sam'],
+    primaryRef: '2 Sam 2:8-10',
+  },
+  {
+    id: 'uriah',
+    name: 'Uriah',
+    alternateNames: ['Uriah the Hittite'],
+    role: 'military',
+    significance: 'notable',
+    description: "One of David's mighty men. Husband of Bathsheba. David arranged his death in battle to cover his adultery.",
+    sources: ['2sam'],
+    primaryRef: '2 Sam 11:3-17',
+    crossReferences: ['2 Sam 23:39'],
+  },
+  {
+    id: 'jehoiada',
+    name: 'Jehoiada',
+    role: 'priest',
+    kingdom: 'judah',
+    significance: 'notable',
+    description: "High priest who hid young Joash from Athaliah for six years, then organized the coup that overthrew her and crowned Joash as king.",
+    sources: ['2kgs'],
+    primaryRef: '2 Kgs 11:4-12',
+  },
+  {
+    id: 'pharaoh-neco',
+    name: 'Pharaoh Neco',
+    alternateNames: ['Necho'],
+    role: 'foreign-king',
+    significance: 'notable',
+    description: "Egyptian pharaoh who killed Josiah at Megiddo, deposed Jehoahaz, and installed Jehoiakim as vassal king of Judah.",
+    sources: ['2kgs'],
+    primaryRef: '2 Kgs 23:29-34',
+  },
+];
+
 export const allSKCharacters: SKCharacter[] = [
   ...prophets,
   ...military,
   ...family,
   ...officials,
   ...foreigners,
+  ...additional,
 ];
