@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { allKings, allSKCharacters, allSKRelationships } from '../../data/samuel-kings';
+import type { King } from '../../types/samuel-kings';
 import { buildSKGraph } from '../../utils/buildSKGraph';
 import { RelationshipCanvas } from '../../components/samuel-kings/relationships/RelationshipCanvas';
 import { toBibleGatewayUrl } from '../../utils/bibleLinks';
@@ -37,13 +38,43 @@ const PRESETS: { key: string; label: string; description: string; hidden: Set<st
 const allChars = [...allKings, ...allSKCharacters];
 const charMap = new Map(allChars.map(c => [c.id, c]));
 
-function getCharRelationships(charId: string): (SKRelationship & { otherName: string })[] {
+// Build king lookup for date estimation
+const kingMap = new Map<string, King>(allKings.map(k => [k.id, k]));
+
+function estimateRelDate(rel: SKRelationship): number | null {
+  // Use the later king's reign start as a rough date (when the interaction happened)
+  const srcKing = kingMap.get(rel.source);
+  const tgtKing = kingMap.get(rel.target);
+  if (srcKing && tgtKing) {
+    // Both are kings — use the later one's start (the one who came to power more recently)
+    return Math.min(srcKing.reignStart, tgtKing.reignStart);
+  }
+  if (srcKing) return Math.round((srcKing.reignStart + srcKing.reignEnd) / 2);
+  if (tgtKing) return Math.round((tgtKing.reignStart + tgtKing.reignEnd) / 2);
+  return null;
+}
+
+type EnrichedRel = SKRelationship & { otherName: string; otherId: string; approxYear: number | null };
+
+function getCharRelationships(charId: string): EnrichedRel[] {
   return allSKRelationships
     .filter(r => r.source === charId || r.target === charId)
-    .map(r => ({
-      ...r,
-      otherName: charMap.get(r.source === charId ? r.target : r.source)?.name || r.source === charId ? r.target : r.source,
-    }));
+    .map(r => {
+      const otherId = r.source === charId ? r.target : r.source;
+      return {
+        ...r,
+        otherId,
+        otherName: charMap.get(otherId)?.name || otherId,
+        approxYear: estimateRelDate(r),
+      };
+    })
+    .sort((a, b) => {
+      // Sort by date descending (higher BC number = earlier = first)
+      if (a.approxYear && b.approxYear) return b.approxYear - a.approxYear;
+      if (a.approxYear) return -1;
+      if (b.approxYear) return 1;
+      return 0;
+    });
 }
 
 function getRelColor(type: string): string {
@@ -214,35 +245,47 @@ export default function RelationshipsPage() {
                 </svg>
               </a>
 
-              {/* Relationships list */}
+              {/* Chronological story */}
               {selectedRels.length > 0 && (
                 <div>
-                  <h3 className="text-stone-500 text-xs font-semibold uppercase tracking-wider mb-2">Relationships</h3>
-                  <div className="space-y-1.5">
-                    {selectedRels.map((rel, i) => (
-                      <button
-                        key={i}
-                        onClick={() => {
-                          const otherId = rel.source === selectedId ? rel.target : rel.source;
-                          setSelectedId(otherId);
-                        }}
-                        className="w-full text-left flex items-start gap-2 px-2 py-1.5 rounded hover:bg-stone-700/50 transition-colors"
-                      >
-                        <span
-                          className="mt-1 w-2 h-2 rounded-full shrink-0"
-                          style={{ backgroundColor: getRelColor(rel.type) }}
-                        />
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-white text-xs font-medium">{rel.otherName}</span>
-                            <span className="text-stone-600 text-[10px]">{getRelLabel(rel.type)}</span>
+                  <h3 className="text-stone-500 text-xs font-semibold uppercase tracking-wider mb-2">Story</h3>
+                  <div className="relative">
+                    {/* Vertical timeline line */}
+                    <div className="absolute left-[5px] top-2 bottom-2 w-px bg-stone-700" />
+                    <div className="space-y-0.5">
+                      {selectedRels.map((rel, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setSelectedId(rel.otherId)}
+                          className="w-full text-left flex items-start gap-3 pl-0 pr-1 py-1.5 rounded hover:bg-stone-700/50 transition-colors relative"
+                        >
+                          {/* Timeline dot */}
+                          <span
+                            className="mt-1.5 w-[11px] h-[11px] rounded-full shrink-0 border-2 border-stone-800 z-[1]"
+                            style={{ backgroundColor: getRelColor(rel.type) }}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5">
+                              {rel.approxYear && (
+                                <span className="text-stone-600 text-[10px] font-mono w-10 shrink-0">~{rel.approxYear}</span>
+                              )}
+                              <span
+                                className="text-[10px] px-1 py-px rounded font-medium"
+                                style={{ backgroundColor: getRelColor(rel.type) + '22', color: getRelColor(rel.type) }}
+                              >
+                                {getRelLabel(rel.type)}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1 mt-0.5">
+                              <span className="text-white text-xs font-medium">{rel.otherName}</span>
+                            </div>
+                            {rel.description && (
+                              <p className="text-stone-500 text-[11px] leading-snug">{rel.description}</p>
+                            )}
                           </div>
-                          {rel.description && (
-                            <p className="text-stone-500 text-[11px] leading-snug truncate">{rel.description}</p>
-                          )}
-                        </div>
-                      </button>
-                    ))}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -284,14 +327,20 @@ export default function RelationshipsPage() {
           </div>
           <p className="text-stone-300 text-sm mb-2">{selectedChar.description}</p>
           {selectedRels.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {selectedRels.slice(0, 6).map((rel, i) => (
-                <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-stone-700 text-stone-300">
-                  <span className="inline-block w-1.5 h-1.5 rounded-full mr-1" style={{ backgroundColor: getRelColor(rel.type) }} />
-                  {rel.otherName}
-                </span>
+            <div className="space-y-1">
+              {selectedRels.slice(0, 8).map((rel, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedId(rel.otherId)}
+                  className="flex items-center gap-2 w-full text-left px-1 py-0.5 rounded hover:bg-stone-700/50"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: getRelColor(rel.type) }} />
+                  {rel.approxYear && <span className="text-stone-600 text-[10px] font-mono">~{rel.approxYear}</span>}
+                  <span className="text-white text-[11px]">{rel.otherName}</span>
+                  <span className="text-stone-600 text-[10px]">{getRelLabel(rel.type)}</span>
+                </button>
               ))}
-              {selectedRels.length > 6 && <span className="text-stone-500 text-[10px]">+{selectedRels.length - 6} more</span>}
+              {selectedRels.length > 8 && <span className="text-stone-500 text-[10px]">+{selectedRels.length - 8} more</span>}
             </div>
           )}
         </div>
