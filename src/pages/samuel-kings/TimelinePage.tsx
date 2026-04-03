@@ -182,6 +182,17 @@ export default function TimelinePage() {
     setCrosshairYear(null);
   }, []);
 
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    // Only zoom if not over the scroll area's scrollbar
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      setPpy(p => {
+        const next = e.deltaY < 0 ? p + 1 : p - 1;
+        return Math.max(MIN_PPY, Math.min(MAX_PPY, next));
+      });
+    }
+  }, []);
+
   return (
     <div className="flex flex-col h-full bg-stone-900 relative">
       {/* ── Zoom controls ────────────────────────────────── */}
@@ -204,6 +215,7 @@ export default function TimelinePage() {
           ref={contentRef}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
+          onWheel={handleWheel}
           style={{ width: totalWidth + 120 }}
           className="relative px-14 pt-6 pb-20 min-h-full"
         >

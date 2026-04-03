@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { characterArcs } from '../../data/samuel-kings';
 import { allKings, allSKCharacters } from '../../data/samuel-kings';
 import type { ArcPoint } from '../../types/samuel-kings';
@@ -27,21 +27,13 @@ const INNER_H = CHART_H - CHART_PAD.top - CHART_PAD.bottom;
 const MIN_YEAR = 1060;
 const MAX_YEAR = 600;
 
-function yearToX(year: number): number {
-  return CHART_PAD.left + ((MIN_YEAR - year) / (MIN_YEAR - MAX_YEAR)) * INNER_W;
-}
+// yearToX is now dynamic (vYearToX) — responds to zoom state
 
 function influenceToY(influence: number): number {
   return CHART_PAD.top + INNER_H - (influence / 100) * INNER_H;
 }
 
-function buildPath(points: ArcPoint[]): string {
-  if (points.length === 0) return '';
-  const sorted = [...points].sort((a, b) => b.year - a.year);
-  return sorted
-    .map((p, i) => `${i === 0 ? 'M' : 'L'} ${yearToX(p.year).toFixed(1)} ${influenceToY(p.influence).toFixed(1)}`)
-    .join(' ');
-}
+// buildPath is now a hook (vBuildPath) that responds to zoom state
 
 // Default selection: Saul + David (the most dramatic overlapping narrative)
 const DEFAULT_SELECTED = new Set(['saul', 'david']);
@@ -51,6 +43,63 @@ export default function ArcsPage() {
   const [selected, setSelected] = useState<Set<string>>(DEFAULT_SELECTED);
   const [hoveredPoint, setHoveredPoint] = useState<{ point: ArcPoint; charId: string; color: string; x: number; y: number } | null>(null);
   const [selectedPoint, setSelectedPoint] = useState<{ point: ArcPoint; charId: string; charName: string; color: string } | null>(null);
+  const [crosshairX, setCrosshairX] = useState<number | null>(null);
+  const [crosshairYear, setCrosshairYear] = useState<number | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  // Zoom: viewBox range on the X axis (year range visible)
+  const [viewMinYear, setViewMinYear] = useState(MIN_YEAR);
+  const [viewMaxYear, setViewMaxYear] = useState(MAX_YEAR);
+
+  // Dynamic year-to-X based on current view
+  const vYearToX = useCallback((year: number): number => {
+    return CHART_PAD.left + ((viewMinYear - year) / (viewMinYear - viewMaxYear)) * INNER_W;
+  }, [viewMinYear, viewMaxYear]);
+
+  const vBuildPath = useCallback((points: ArcPoint[]): string => {
+    if (points.length === 0) return '';
+    const sorted = [...points].sort((a, b) => b.year - a.year);
+    return sorted
+      .map((p, i) => `${i === 0 ? 'M' : 'L'} ${vYearToX(p.year).toFixed(1)} ${influenceToY(p.influence).toFixed(1)}`)
+      .join(' ');
+  }, [vYearToX]);
+
+  const handleChartMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    const xPct = (e.clientX - rect.left) / rect.width;
+    const svgX = xPct * CHART_W;
+    if (svgX < CHART_PAD.left || svgX > CHART_PAD.left + INNER_W) {
+      setCrosshairX(null);
+      setCrosshairYear(null);
+      return;
+    }
+    const yearPct = (svgX - CHART_PAD.left) / INNER_W;
+    const year = Math.round(viewMinYear - yearPct * (viewMinYear - viewMaxYear));
+    setCrosshairX(svgX);
+    setCrosshairYear(year);
+  }, [viewMinYear, viewMaxYear]);
+
+  const handleChartMouseLeave = useCallback(() => {
+    setCrosshairX(null);
+    setCrosshairYear(null);
+  }, []);
+
+  const handleChartWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    const factor = e.deltaY > 0 ? 0.9 : 1.1; // scroll down = zoom out, up = zoom in
+    const totalSpan = viewMinYear - viewMaxYear;
+    const center = (viewMinYear + viewMaxYear) / 2;
+    const newSpan = Math.max(80, Math.min(MIN_YEAR - MAX_YEAR, totalSpan / factor));
+    setViewMinYear(Math.min(MIN_YEAR, center + newSpan / 2));
+    setViewMaxYear(Math.max(MAX_YEAR, center - newSpan / 2));
+  }, [viewMinYear, viewMaxYear]);
+
+  const handleResetZoom = useCallback(() => {
+    setViewMinYear(MIN_YEAR);
+    setViewMaxYear(MAX_YEAR);
+  }, []);
 
   const charMap = useMemo(() => {
     const all = [...allKings, ...allSKCharacters];
@@ -75,10 +124,13 @@ export default function ArcsPage() {
     { label: 'All', ids: ARC_CHARS.map(c => c.id) },
   ], []);
 
-  // Year grid lines
+  // Year grid lines (dynamic based on zoom)
   const yearMarks = useMemo(() => {
+    const span = viewMinYear - viewMaxYear;
+    const step = span > 300 ? 50 : span > 150 ? 25 : 10;
     const marks = [];
-    for (let y = 1050; y >= 610; y -= 50) marks.push(y);
+    const start = Math.floor(viewMinYear / step) * step;
+    for (let y = start; y >= viewMaxYear; y -= step) marks.push(y);
     return marks;
   }, []);
 
@@ -87,6 +139,13 @@ export default function ArcsPage() {
       {/* ── Character selector ──────────────────────────── */}
       <div className="shrink-0 border-b border-stone-800 px-4 py-3">
         <div className="flex items-center gap-3 overflow-x-auto">
+          <button
+            onClick={handleResetZoom}
+            className="px-2 py-1 rounded text-[10px] font-mono text-stone-500 hover:text-stone-300 bg-stone-800 transition-colors shrink-0"
+            title="Reset zoom"
+          >
+            Reset Zoom
+          </button>
           <span className="text-stone-500 text-xs font-semibold uppercase tracking-wider shrink-0">Presets:</span>
           {presets.map(p => (
             <button
@@ -124,17 +183,25 @@ export default function ArcsPage() {
       {/* ── Chart ───────────────────────────────────────── */}
       <div className="flex-1 flex overflow-hidden">
         <div className="flex-1 relative p-4">
-          <svg viewBox={`0 0 ${CHART_W} ${CHART_H}`} className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+          <svg
+            ref={svgRef}
+            viewBox={`0 0 ${CHART_W} ${CHART_H}`}
+            className="w-full h-full select-none"
+            preserveAspectRatio="xMidYMid meet"
+            onMouseMove={handleChartMouseMove}
+            onMouseLeave={handleChartMouseLeave}
+            onWheel={handleChartWheel}
+          >
             {/* Background grid */}
             {yearMarks.map(y => (
               <g key={y}>
                 <line
-                  x1={yearToX(y)} y1={CHART_PAD.top}
-                  x2={yearToX(y)} y2={CHART_PAD.top + INNER_H}
+                  x1={vYearToX(y)} y1={CHART_PAD.top}
+                  x2={vYearToX(y)} y2={CHART_PAD.top + INNER_H}
                   stroke="#292524" strokeWidth={1}
                 />
                 <text
-                  x={yearToX(y)} y={CHART_PAD.top + INNER_H + 18}
+                  x={vYearToX(y)} y={CHART_PAD.top + INNER_H + 18}
                   fill="#78716c" fontSize="10" textAnchor="middle" fontFamily="monospace"
                 >
                   {y} BC
@@ -168,18 +235,40 @@ export default function ArcsPage() {
               Influence / Power
             </text>
 
+            {/* Crosshair vertical line */}
+            {crosshairX !== null && crosshairYear !== null && (
+              <g style={{ pointerEvents: 'none' }}>
+                <line
+                  x1={crosshairX} y1={CHART_PAD.top}
+                  x2={crosshairX} y2={CHART_PAD.top + INNER_H}
+                  stroke="#f59e0b" strokeWidth={0.8} opacity={0.5}
+                />
+                <rect
+                  x={crosshairX - 28} y={CHART_PAD.top - 16}
+                  width={56} height={14} rx={4}
+                  fill="#f59e0b" opacity={0.9}
+                />
+                <text
+                  x={crosshairX} y={CHART_PAD.top - 6}
+                  fill="#0c0a09" fontSize="8" fontWeight="700" textAnchor="middle" fontFamily="monospace"
+                >
+                  {crosshairYear} BC
+                </text>
+              </g>
+            )}
+
             {/* Character arcs */}
             {ARC_CHARS.filter(c => selected.has(c.id)).map(c => {
               const points = characterArcs[c.id];
               if (!points || points.length === 0) return null;
-              const path = buildPath(points);
+              const path = vBuildPath(points);
               const sorted = [...points].sort((a, b) => b.year - a.year);
 
               return (
                 <g key={c.id}>
                   {/* Gradient fill under the line */}
                   <path
-                    d={path + ` L ${yearToX(sorted[sorted.length - 1].year)} ${influenceToY(0)} L ${yearToX(sorted[0].year)} ${influenceToY(0)} Z`}
+                    d={path + ` L ${vYearToX(sorted[sorted.length - 1].year)} ${influenceToY(0)} L ${vYearToX(sorted[0].year)} ${influenceToY(0)} Z`}
                     fill={c.color}
                     opacity={0.06}
                   />
@@ -195,13 +284,12 @@ export default function ArcsPage() {
                   />
                   {/* Data points */}
                   {sorted.map((p, i) => {
-                    const px = yearToX(p.year);
+                    const px = vYearToX(p.year);
                     const py = influenceToY(p.influence);
                     const isHovered = hoveredPoint?.point === p;
                     const isSel = selectedPoint?.point === p;
                     return (
                       <g key={i}>
-                        {/* Hit area (larger invisible circle) */}
                         <circle
                           cx={px} cy={py} r={12}
                           fill="transparent"
@@ -223,7 +311,7 @@ export default function ArcsPage() {
                   })}
                   {/* Character name at the first point */}
                   <text
-                    x={yearToX(sorted[0].year) + 6}
+                    x={vYearToX(sorted[0].year) + 6}
                     y={influenceToY(sorted[0].influence) - 8}
                     fill={c.color}
                     fontSize="11"
