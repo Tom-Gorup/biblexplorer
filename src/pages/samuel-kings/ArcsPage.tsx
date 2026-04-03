@@ -18,8 +18,8 @@ const ARC_CHARS: { id: string; name: string; color: string }[] = [
 
 // ── SVG dimensions ──────────────────────────────────────────────
 const CHART_PAD = { top: 30, right: 30, bottom: 50, left: 50 };
-const CHART_W = 1000;
-const CHART_H = 400;
+const CHART_W = 1200;
+const CHART_H = 600;
 const INNER_W = CHART_W - CHART_PAD.left - CHART_PAD.right;
 const INNER_H = CHART_H - CHART_PAD.top - CHART_PAD.bottom;
 
@@ -182,7 +182,7 @@ export default function ArcsPage() {
 
       {/* ── Chart ───────────────────────────────────────── */}
       <div className="flex-1 flex overflow-hidden">
-        <div className="flex-1 relative p-4">
+        <div className="flex-1 relative p-2">
           <svg
             ref={svgRef}
             viewBox={`0 0 ${CHART_W} ${CHART_H}`}
@@ -202,7 +202,7 @@ export default function ArcsPage() {
                 />
                 <text
                   x={vYearToX(y)} y={CHART_PAD.top + INNER_H + 18}
-                  fill="#78716c" fontSize="10" textAnchor="middle" fontFamily="monospace"
+                  fill="#78716c" fontSize="11" textAnchor="middle" fontFamily="monospace"
                 >
                   {y} BC
                 </text>
@@ -219,7 +219,7 @@ export default function ArcsPage() {
                 />
                 <text
                   x={CHART_PAD.left - 8} y={influenceToY(v) + 3}
-                  fill="#57534e" fontSize="9" textAnchor="end" fontFamily="monospace"
+                  fill="#57534e" fontSize="11" textAnchor="end" fontFamily="monospace"
                 >
                   {v}
                 </text>
@@ -229,7 +229,7 @@ export default function ArcsPage() {
             {/* Y-axis label */}
             <text
               x={12} y={CHART_PAD.top + INNER_H / 2}
-              fill="#57534e" fontSize="9" textAnchor="middle"
+              fill="#57534e" fontSize="11" textAnchor="middle"
               transform={`rotate(-90, 12, ${CHART_PAD.top + INNER_H / 2})`}
             >
               Influence / Power
@@ -250,7 +250,7 @@ export default function ArcsPage() {
                 />
                 <text
                   x={crosshairX} y={CHART_PAD.top - 6}
-                  fill="#0c0a09" fontSize="8" fontWeight="700" textAnchor="middle" fontFamily="monospace"
+                  fill="#0c0a09" fontSize="11" fontWeight="700" textAnchor="middle" fontFamily="monospace"
                 >
                   {crosshairYear} BC
                 </text>
@@ -311,10 +311,10 @@ export default function ArcsPage() {
                   })}
                   {/* Character name at the first point */}
                   <text
-                    x={vYearToX(sorted[0].year) + 6}
-                    y={influenceToY(sorted[0].influence) - 8}
+                    x={vYearToX(sorted[0].year) + 8}
+                    y={influenceToY(sorted[0].influence) - 10}
                     fill={c.color}
-                    fontSize="11"
+                    fontSize="14"
                     fontWeight="700"
                   >
                     {c.name}
@@ -327,10 +327,10 @@ export default function ArcsPage() {
             {hoveredPoint && (
               <g style={{ pointerEvents: 'none' }}>
                 <rect
-                  x={hoveredPoint.x - 90}
-                  y={hoveredPoint.y - 42}
-                  width={180}
-                  height={32}
+                  x={hoveredPoint.x - 110}
+                  y={hoveredPoint.y - 48}
+                  width={220}
+                  height={38}
                   rx={6}
                   fill="#1c1917"
                   stroke={hoveredPoint.color}
@@ -339,9 +339,9 @@ export default function ArcsPage() {
                 />
                 <text
                   x={hoveredPoint.x}
-                  y={hoveredPoint.y - 28}
+                  y={hoveredPoint.y - 32}
                   fill="#fff"
-                  fontSize="8"
+                  fontSize="12"
                   fontWeight="600"
                   textAnchor="middle"
                 >
@@ -351,9 +351,9 @@ export default function ArcsPage() {
                 </text>
                 <text
                   x={hoveredPoint.x}
-                  y={hoveredPoint.y - 17}
+                  y={hoveredPoint.y - 18}
                   fill="#a8a29e"
-                  fontSize="7"
+                  fontSize="10"
                   textAnchor="middle"
                   fontFamily="monospace"
                 >
