@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { allKings } from '../../data/samuel-kings';
 import type { King } from '../../types/samuel-kings';
 import { assessmentColors, kingdomColors, kingdomLabel } from '../../utils/kingdomColors';
@@ -105,6 +105,9 @@ for (const p of PROPHETS) {
 export default function TimelinePage() {
   const [selected, setSelected] = useState<King | null>(null);
   const [selectedProphet, setSelectedProphet] = useState<Prophet | null>(null);
+  const [crosshairX, setCrosshairX] = useState<number | null>(null);
+  const [crosshairYear, setCrosshairYear] = useState<number | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const lanes = useMemo(() => {
     const raw = [
@@ -149,10 +152,38 @@ export default function TimelinePage() {
     setSelected(null);
   }, []);
 
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    const content = contentRef.current;
+    if (!content) return;
+    const rect = content.getBoundingClientRect();
+    const xInContent = e.clientX - rect.left;
+    // Convert pixel position to year: yearToX(year) = (TIMELINE_START - year) * PX_PER_YEAR
+    // So year = TIMELINE_START - (xInContent - 56) / PX_PER_YEAR  (56 = px-14 padding)
+    const year = Math.round(TIMELINE_START - (xInContent - 56) / PX_PER_YEAR);
+    if (year >= TIMELINE_END && year <= TIMELINE_START) {
+      setCrosshairX(e.clientX - rect.left);
+      setCrosshairYear(year);
+    } else {
+      setCrosshairX(null);
+      setCrosshairYear(null);
+    }
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setCrosshairX(null);
+    setCrosshairYear(null);
+  }, []);
+
   return (
     <div className="flex flex-col h-full bg-stone-900 relative">
       <div className="flex-1 overflow-x-auto overflow-y-auto">
-        <div style={{ width: TOTAL_WIDTH + 120 }} className="relative px-14 pt-6 pb-20 min-h-full">
+        <div
+          ref={contentRef}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          style={{ width: TOTAL_WIDTH + 120 }}
+          className="relative px-14 pt-6 pb-20 min-h-full"
+        >
 
           {/* ── Year grid lines ─────────────────────────────── */}
           {yearMarkers.map(y => (
@@ -162,6 +193,24 @@ export default function TimelinePage() {
               style={{ left: yearToX(y) + 56, bottom: 0 }}
             />
           ))}
+
+          {/* ── Crosshair cursor line ─────────────────────── */}
+          {crosshairX !== null && crosshairYear !== null && (
+            <>
+              <div
+                className="absolute top-0 bottom-0 border-l border-amber-400/40 pointer-events-none z-[2]"
+                style={{ left: crosshairX }}
+              />
+              <div
+                className="absolute pointer-events-none z-[3] -translate-x-1/2"
+                style={{ left: crosshairX, top: 4 }}
+              >
+                <span className="bg-amber-500/90 text-stone-900 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded">
+                  {crosshairYear} BC
+                </span>
+              </div>
+            </>
+          )}
 
           {/* ── Swim lanes (kings) ─────────────────────────── */}
           {lanes.map(lane => {
