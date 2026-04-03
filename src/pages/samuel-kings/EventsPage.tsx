@@ -21,7 +21,7 @@ function toPixel(lat: number, lng: number) {
 const MIN_YEAR = 1100;
 const MAX_YEAR = 560;
 const EVENT_WINDOW = 15;
-const PLAY_SPEEDS = [80, 40, 20];
+const PLAY_SPEEDS = [500, 200, 80, 30];
 
 const CATEGORY_META: Record<string, { color: string; label: string }> = {
   battle:       { color: '#ef4444', label: 'Battle' },
@@ -432,7 +432,7 @@ export default function EventsPage() {
           <button onClick={cycleSpeed}
             className="px-2 py-1 rounded text-[10px] font-mono text-stone-500 hover:text-stone-300 bg-stone-800 transition-colors shrink-0"
             title="Change playback speed">
-            {speedIdx === 0 ? '1x' : speedIdx === 1 ? '2x' : '4x'}
+            {['1x', '2x', '5x', '15x'][speedIdx]}
           </button>
 
           <span className="text-stone-500 text-xs font-mono shrink-0">{MIN_YEAR} BC</span>
