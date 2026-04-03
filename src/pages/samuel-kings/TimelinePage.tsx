@@ -91,15 +91,20 @@ function packProphetsIntoRows(items: Prophet[]): Prophet[][] {
   return rows;
 }
 
-// ── Layout constants for position computation ──────────────────
-const LABEL_ROW_H = 30;   // label + mb-1.5
-const LANE_MB = 16;        // mb-4
+// ── Reverse lookup: king id → prophet ids ───────────────────────
+const kingToProphets = new Map<string, string[]>();
+for (const p of PROPHETS) {
+  for (const kId of p.targetKings) {
+    const existing = kingToProphets.get(kId) || [];
+    existing.push(p.id);
+    kingToProphets.set(kId, existing);
+  }
+}
 
 // ── Component ───────────────────────────────────────────────────
 export default function TimelinePage() {
   const [selected, setSelected] = useState<King | null>(null);
   const [selectedProphet, setSelectedProphet] = useState<Prophet | null>(null);
-  const [showConnections, setShowConnections] = useState(true);
 
   const lanes = useMemo(() => {
     const raw = [
@@ -116,51 +121,17 @@ export default function TimelinePage() {
   const prophetRows = useMemo(() => packProphetsIntoRows(PROPHETS), []);
   const prophetLaneH = prophetRows.length * (BAR_H + ROW_GAP) + LANE_PAD_Y * 2;
 
-  // Compute Y positions for king bars and prophet bars (relative to the content div)
-  const connectorLines = useMemo(() => {
-    // Build a map of king id → { x (midpoint), y (center of bar) }
-    const kingPositions = new Map<string, { x: number; y: number }>();
-    let cumulativeY = 24; // pt-6 = 24px top padding on content div
+  // When a prophet is selected, highlight their target kings
+  const highlightedKingIds = useMemo(() => {
+    if (!selectedProphet) return new Set<string>();
+    return new Set(selectedProphet.targetKings);
+  }, [selectedProphet]);
 
-    for (const lane of lanes) {
-      const laneH = lane.rows.length * (BAR_H + ROW_GAP) + LANE_PAD_Y * 2;
-      cumulativeY += LABEL_ROW_H; // label row
-      for (let rowIdx = 0; rowIdx < lane.rows.length; rowIdx++) {
-        for (const king of lane.rows[rowIdx]) {
-          const midYear = (king.reignStart + king.reignEnd) / 2;
-          const x = yearToX(midYear);
-          const y = cumulativeY + LANE_PAD_Y + rowIdx * (BAR_H + ROW_GAP) + BAR_H / 2;
-          kingPositions.set(king.id, { x, y });
-        }
-      }
-      cumulativeY += laneH + LANE_MB;
-    }
-
-    // Prophet positions
-    const prophetPositions = new Map<string, { x: number; y: number }>();
-    cumulativeY += LABEL_ROW_H; // prophet label row
-    for (let rowIdx = 0; rowIdx < prophetRows.length; rowIdx++) {
-      for (const prophet of prophetRows[rowIdx]) {
-        const midYear = (prophet.start + prophet.end) / 2;
-        const x = yearToX(midYear);
-        const y = cumulativeY + LANE_PAD_Y + rowIdx * (BAR_H + ROW_GAP) + BAR_H / 2;
-        prophetPositions.set(prophet.id, { x, y });
-      }
-    }
-
-    // Build connector lines
-    const lines: { x1: number; y1: number; x2: number; y2: number; prophetId: string; kingId: string }[] = [];
-    for (const prophet of PROPHETS) {
-      const pPos = prophetPositions.get(prophet.id);
-      if (!pPos) continue;
-      for (const kingId of prophet.targetKings) {
-        const kPos = kingPositions.get(kingId);
-        if (!kPos) continue;
-        lines.push({ x1: kPos.x, y1: kPos.y, x2: pPos.x, y2: pPos.y, prophetId: prophet.id, kingId });
-      }
-    }
-    return lines;
-  }, [lanes, prophetRows]);
+  // When a king is selected, highlight connected prophets
+  const highlightedProphetIds = useMemo(() => {
+    if (!selected) return new Set<string>();
+    return new Set(kingToProphets.get(selected.id) || []);
+  }, [selected]);
 
   const yearMarkers = useMemo(() => {
     const marks = [];
@@ -192,35 +163,6 @@ export default function TimelinePage() {
             />
           ))}
 
-          {/* ── Prophet→King connector lines ────────────────── */}
-          {showConnections && connectorLines.length > 0 && (
-            <svg className="absolute inset-0 w-full h-full pointer-events-none z-[1]">
-              <defs>
-                <marker id="dot" viewBox="0 0 6 6" refX="3" refY="3" markerWidth="4" markerHeight="4">
-                  <circle cx="3" cy="3" r="2.5" fill="#a78bfa" opacity="0.6" />
-                </marker>
-              </defs>
-              {connectorLines.map((line, i) => {
-                const isHighlighted = selectedProphet?.id === line.prophetId || selected?.id === line.kingId;
-                return (
-                  <line
-                    key={i}
-                    x1={line.x1}
-                    y1={line.y1}
-                    x2={line.x2}
-                    y2={line.y2}
-                    stroke="#a78bfa"
-                    strokeWidth={isHighlighted ? 2.5 : 1.5}
-                    strokeDasharray={isHighlighted ? 'none' : '4 3'}
-                    opacity={isHighlighted ? 0.8 : 0.35}
-                    markerStart="url(#dot)"
-                    markerEnd="url(#dot)"
-                  />
-                );
-              })}
-            </svg>
-          )}
-
           {/* ── Swim lanes (kings) ─────────────────────────── */}
           {lanes.map(lane => {
             const kc = kingdomColors[lane.key];
@@ -243,6 +185,7 @@ export default function TimelinePage() {
                       const top = LANE_PAD_Y + rowIdx * (BAR_H + ROW_GAP);
                       const ac = assessmentColors[king.assessment];
                       const isSel = selected?.id === king.id;
+                      const isProphetLinked = highlightedKingIds.has(king.id);
 
                       return (
                         <div
@@ -250,7 +193,10 @@ export default function TimelinePage() {
                           onClick={() => handleKingClick(king)}
                           title={`${king.name} (${king.reignStart}\u2013${king.reignEnd} BC) \u00B7 ${ASSESSMENT_LABELS[king.assessment]}`}
                           className={`absolute cursor-pointer rounded transition-all border ${
-                            isSel ? 'ring-2 ring-white/80 z-10 brightness-125' : 'hover:brightness-125 hover:z-10'
+                            isSel ? 'ring-2 ring-white/80 z-10 brightness-125'
+                            : isProphetLinked ? 'ring-2 ring-violet-400/80 z-10 brightness-125'
+                            : selectedProphet ? 'opacity-30'
+                            : 'hover:brightness-125 hover:z-10'
                           }`}
                           style={{
                             left,
@@ -294,6 +240,7 @@ export default function TimelinePage() {
                   const width = Math.max(span * PX_PER_YEAR, 18);
                   const top = LANE_PAD_Y + rowIdx * (BAR_H + ROW_GAP);
                   const isSel = selectedProphet?.id === prophet.id;
+                  const isKingLinked = highlightedProphetIds.has(prophet.id);
 
                   return (
                     <div
@@ -301,7 +248,10 @@ export default function TimelinePage() {
                       onClick={() => handleProphetClick(prophet)}
                       title={`${prophet.name} (~${prophet.start}\u2013${prophet.end} BC)`}
                       className={`absolute cursor-pointer rounded transition-all border flex items-center gap-1 px-1.5 ${
-                        isSel ? 'ring-2 ring-white/80 z-10 brightness-125' : 'hover:brightness-125 hover:z-10'
+                        isSel ? 'ring-2 ring-white/80 z-10 brightness-125'
+                        : isKingLinked ? 'ring-2 ring-violet-400/80 z-10 brightness-125'
+                        : selected ? 'opacity-30'
+                        : 'hover:brightness-125 hover:z-10'
                       }`}
                       style={{
                         left,
@@ -355,19 +305,10 @@ export default function TimelinePage() {
               <span className="w-2.5 h-2.5 rotate-45" style={{ backgroundColor: '#a78bfa', border: '1px solid #c4b5fd' }} />
               <span className="text-[10px] text-stone-400">Prophet</span>
             </div>
-            <button
-              onClick={() => setShowConnections(c => !c)}
-              className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
-                showConnections
-                  ? 'bg-violet-500/15 text-violet-400 border border-violet-500/20'
-                  : 'text-stone-500 hover:text-stone-300 border border-stone-700'
-              }`}
-            >
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.914-3.814a4.5 4.5 0 00-6.364-6.364L4.819 6.757a4.5 4.5 0 001.242 7.244" />
-              </svg>
-              Prophet links
-            </button>
+            <div className="flex items-center gap-1.5">
+              <span className="w-4 h-0 border border-dashed border-violet-400/60 rounded" />
+              <span className="text-[10px] text-stone-400">Click prophet/king to see connections</span>
+            </div>
           </div>
         </div>
       </div>
