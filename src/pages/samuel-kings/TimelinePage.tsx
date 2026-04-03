@@ -5,7 +5,7 @@ import { assessmentColors, kingdomColors, kingdomLabel } from '../../utils/kingd
 import { toBibleGatewayUrl } from '../../utils/bibleLinks';
 
 // ── Timeline constants ──────────────────────────────────────────
-const TIMELINE_START = 1075;
+const TIMELINE_START = 1090;
 const TIMELINE_END = 555;
 const PX_PER_YEAR = 8;
 const TOTAL_WIDTH = (TIMELINE_START - TIMELINE_END) * PX_PER_YEAR;
@@ -29,7 +29,7 @@ interface Prophet {
 }
 
 const PROPHETS: Prophet[] = [
-  { id: 'samuel',   name: 'Samuel',   start: 1080, end: 1010, message: 'Obedience is better than sacrifice',                           ref: '1 Sam 15:22',      targetKings: ['saul-king', 'david'] },
+  { id: 'samuel',   name: 'Samuel',   start: 1080, end: 1005, message: 'Obedience is better than sacrifice',                           ref: '1 Sam 15:22',      targetKings: ['saul-king', 'david'] },
   { id: 'nathan',   name: 'Nathan',   start: 1010, end: 970,  message: 'Confronted David, promised eternal dynasty',                    ref: '2 Sam 7:12-16',    targetKings: ['david', 'solomon'] },
   { id: 'elijah',   name: 'Elijah',   start: 870,  end: 850,  message: '"The LORD, He is God!" — confronted Baal worship',              ref: '1 Kgs 18:39',      targetKings: ['ahab-king', 'ahaziah-israel'] },
   { id: 'elisha',   name: 'Elisha',   start: 850,  end: 800,  message: 'Miracles demonstrating God\'s power and compassion',            ref: '2 Kgs 2-8',        targetKings: ['joram-israel', 'jehu-king', 'jehoahaz-israel', 'jehoash-israel'] },
