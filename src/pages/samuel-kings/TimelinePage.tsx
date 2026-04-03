@@ -194,7 +194,7 @@ export default function TimelinePage() {
 
           {/* ── Prophet→King connector lines ────────────────── */}
           {showConnections && connectorLines.length > 0 && (
-            <svg className="absolute inset-0 pointer-events-none z-[1]">
+            <svg className="absolute inset-0 w-full h-full pointer-events-none z-[1]">
               <defs>
                 <marker id="dot" viewBox="0 0 6 6" refX="3" refY="3" markerWidth="4" markerHeight="4">
                   <circle cx="3" cy="3" r="2.5" fill="#a78bfa" opacity="0.6" />
