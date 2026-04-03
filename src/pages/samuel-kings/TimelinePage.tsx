@@ -331,11 +331,11 @@ export default function TimelinePage() {
             {yearMarkers.map(y => (
               <div
                 key={y}
-                className="absolute top-0 flex flex-col items-center"
+                className="absolute top-0"
                 style={{ left: yearToX(y) }}
               >
                 <div className="w-px h-3 bg-stone-500" />
-                <span className="text-xs font-mono text-stone-300 mt-0.5 -translate-x-1/2 whitespace-nowrap">
+                <span className="absolute top-3.5 left-1/2 -translate-x-1/2 text-xs font-mono text-stone-300 whitespace-nowrap">
                   {y} BC
                 </span>
               </div>
