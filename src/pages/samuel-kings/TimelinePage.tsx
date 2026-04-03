@@ -7,7 +7,7 @@ import { toBibleGatewayUrl } from '../../utils/bibleLinks';
 // ── Timeline constants ──────────────────────────────────────────
 const TIMELINE_START = 1090;
 const TIMELINE_END = 555;
-const DEFAULT_PPY = 8;
+const DEFAULT_PPY = 3;
 const MIN_PPY = 3;
 const MAX_PPY = 20;
 const BAR_H = 28;
