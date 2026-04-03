@@ -4,10 +4,11 @@ import type { SKEvent, SKLocation } from '../../types/samuel-kings';
 import { toBibleGatewayUrl } from '../../utils/bibleLinks';
 
 // ── Map image bounds (from Stamen terrain tiles z=7, tiles 75-77 x 50-53) ──
-const MAP_NW = { lat: 36.5979, lng: 30.9375 };
-const MAP_SE = { lat: 27.0591, lng: 39.3750 };
-const IMG_W = 768;
-const IMG_H = 1024;
+// ESRI World Shaded Relief export bounds
+const MAP_NW = { lat: 35.0, lng: 33.5 };
+const MAP_SE = { lat: 28.5, lng: 37.5 };
+const IMG_W = 900;
+const IMG_H = 1200;
 
 // Convert lat/lng to pixel position on the terrain image
 function toPixel(lat: number, lng: number) {
@@ -111,14 +112,11 @@ export default function EventsPage() {
     setSelectedEvent(prev => prev?.id === event.id ? null : event);
   }, []);
 
-  // Viewbox: crop to just the Israel region (exclude far-off Nineveh/Babylon for main view)
-  // Focus on roughly 34E-37E, 29N-34N
-  const vbTopLeft = toPixel(34.0, 33.8);
-  const vbBottomRight = toPixel(29.0, 37.0);
-  const vbX = vbTopLeft.x;
-  const vbY = vbTopLeft.y;
-  const vbW = vbBottomRight.x - vbTopLeft.x;
-  const vbH = vbBottomRight.y - vbTopLeft.y;
+  // Viewbox: show the full image (already cropped to Israel region)
+  const vbX = 0;
+  const vbY = 0;
+  const vbW = IMG_W;
+  const vbH = IMG_H;
 
   return (
     <div className="flex flex-col h-full bg-stone-950 relative">
