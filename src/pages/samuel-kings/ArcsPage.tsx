@@ -37,6 +37,7 @@ export default function ArcsPage() {
   const [selected, setSelected] = useState<Set<string>>(DEFAULT_SELECTED);
   const [hoveredPoint, setHoveredPoint] = useState<{ point: ArcPoint; charId: string; color: string; x: number; y: number } | null>(null);
   const [selectedPoint, setSelectedPoint] = useState<{ point: ArcPoint; charId: string; charName: string; color: string } | null>(null);
+  const [showIntro, setShowIntro] = useState(true);
   const [crosshairX, setCrosshairX] = useState<number | null>(null);
   const [crosshairYear, setCrosshairYear] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -281,6 +282,29 @@ export default function ArcsPage() {
 
       {/* ── Chart (full width) ─────────────────────────── */}
       <div ref={containerRef} className="flex-1 overflow-hidden relative">
+          {/* Intro overlay */}
+          {showIntro && !selectedPoint && (
+            <div className="absolute top-4 right-4 z-20 w-72 bg-stone-900/95 backdrop-blur-xl border border-stone-700/80 rounded-xl shadow-2xl p-4">
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="text-white text-sm font-semibold">Rise &amp; Fall</h3>
+                <button onClick={() => setShowIntro(false)} className="text-stone-500 hover:text-white p-0.5">
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <p className="text-stone-400 text-xs leading-relaxed mb-3">
+                Each dot is a turning point. Hover to preview, click for details and a link to the scripture. Scroll to zoom, drag to pan.
+              </p>
+              <h4 className="text-stone-500 text-[10px] uppercase tracking-wider mb-1.5">What to look for</h4>
+              <ul className="space-y-1.5 text-xs">
+                <li><span className="text-amber-400 font-semibold">Saul &amp; David</span> <span className="text-stone-500">— Watch Saul's decline cross David's rise</span></li>
+                <li><span className="text-violet-400 font-semibold">Elijah</span> <span className="text-stone-500">— Carmel's peak to Horeb's despair in days</span></li>
+                <li><span className="text-blue-400 font-semibold">Solomon</span> <span className="text-stone-500">— Wisdom, glory, then tragic decline</span></li>
+              </ul>
+            </div>
+          )}
+
           <svg
             ref={svgRef}
             viewBox={`0 0 ${CHART_W} ${CHART_H}`}
