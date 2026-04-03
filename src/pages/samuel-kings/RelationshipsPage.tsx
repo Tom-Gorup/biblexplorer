@@ -137,7 +137,24 @@ export default function RelationshipsPage() {
 
             {legendOpen && (
               <div className="absolute bottom-10 left-0 bg-stone-800/95 backdrop-blur-xl border border-stone-700 rounded-xl shadow-2xl p-3 w-56">
-                <h4 className="text-stone-500 text-[10px] font-semibold uppercase tracking-wider mb-2">Edge Types (click to filter)</h4>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-stone-500 text-[10px] font-semibold uppercase tracking-wider">Edge Types</h4>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => setHiddenTypes(new Set(REL_TYPES.map(r => r.key)))}
+                      className="text-[10px] text-stone-500 hover:text-stone-300 transition-colors"
+                    >
+                      None
+                    </button>
+                    <span className="text-stone-700 text-[10px]">|</span>
+                    <button
+                      onClick={() => setHiddenTypes(new Set())}
+                      className="text-[10px] text-stone-500 hover:text-stone-300 transition-colors"
+                    >
+                      All
+                    </button>
+                  </div>
+                </div>
                 <div className="space-y-1">
                   {REL_TYPES.map(rt => {
                     const isHidden = hiddenTypes.has(rt.key);
