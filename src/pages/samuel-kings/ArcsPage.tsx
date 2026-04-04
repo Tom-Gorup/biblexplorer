@@ -97,10 +97,7 @@ export default function ArcsPage() {
   // Zoom: track whether user has manually zoomed/panned
   const [manualZoom, setManualZoom] = useState<{ min: number; max: number } | null>(null);
 
-  // Reset manual zoom when selection changes
-  useEffect(() => {
-    setManualZoom(null);
-  }, [selected]);
+  // Auto-fit is only triggered by presets, not individual character toggles
 
   // Active view: manual zoom overrides auto-fit
   const viewMinYear = manualZoom ? manualZoom.min : autoFitRange.min;
@@ -272,7 +269,7 @@ export default function ArcsPage() {
           {presets.map(p => (
             <button
               key={p.label}
-              onClick={() => setSelected(new Set(p.ids))}
+              onClick={() => { setSelected(new Set(p.ids)); setManualZoom(null); }}
               className="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors text-stone-400 hover:text-white hover:bg-white/10 border border-stone-700/40"
             >
               {p.label}
