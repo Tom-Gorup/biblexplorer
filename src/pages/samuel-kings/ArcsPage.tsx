@@ -81,35 +81,34 @@ export default function ArcsPage() {
     // Add padding (10% on each side)
     const span = latest - earliest || 100;
     const pad = Math.max(20, span * 0.12);
-    return { min: Math.min(MIN_YEAR, latest + pad), max: Math.max(MAX_YEAR, earliest - pad) };
+    let min = Math.min(MIN_YEAR, latest + pad);
+    let max = Math.max(MAX_YEAR, earliest - pad);
+
+    // Cap max visible span based on container width (min ~3px per year for readability)
+    const maxVisibleSpan = Math.max(100, Math.floor(INNER_W / 3));
+    if (min - max > maxVisibleSpan) {
+      // Show from the earliest data, spanning maxVisibleSpan years
+      max = min - maxVisibleSpan;
+    }
+
+    return { min, max };
+  }, [selected, INNER_W]);
+
+  // Zoom: track whether user has manually zoomed/panned
+  const [manualZoom, setManualZoom] = useState<{ min: number; max: number } | null>(null);
+
+  // Reset manual zoom when selection changes
+  useEffect(() => {
+    setManualZoom(null);
   }, [selected]);
 
-  // Zoom: viewBox range on the X axis (year range visible)
-  const [viewMinYear, setViewMinYear] = useState(() => {
-    // Initialize to Saul+David range
-    let latest = 0, earliest = 9999;
-    for (const id of DEFAULT_SELECTED) {
-      const pts = characterArcs[id];
-      if (!pts) continue;
-      for (const p of pts) { if (p.year > latest) latest = p.year; if (p.year < earliest) earliest = p.year; }
-    }
-    return latest + 15;
-  });
-  const [viewMaxYear, setViewMaxYear] = useState(() => {
-    let earliest = 9999;
-    for (const id of DEFAULT_SELECTED) {
-      const pts = characterArcs[id];
-      if (!pts) continue;
-      for (const p of pts) { if (p.year < earliest) earliest = p.year; }
-    }
-    return earliest - 15;
-  });
+  // Active view: manual zoom overrides auto-fit
+  const viewMinYear = manualZoom ? manualZoom.min : autoFitRange.min;
+  const viewMaxYear = manualZoom ? manualZoom.max : autoFitRange.max;
 
-  // Auto-fit when selection changes
-  useEffect(() => {
-    setViewMinYear(autoFitRange.min);
-    setViewMaxYear(autoFitRange.max);
-  }, [autoFitRange]);
+  const setViewRange = useCallback((min: number, max: number) => {
+    setManualZoom({ min, max });
+  }, []);
 
   // Dynamic year-to-X based on current view
   const vYearToX = useCallback((year: number): number => {
@@ -166,10 +165,9 @@ export default function ArcsPage() {
     const newMax = dragRef.current.startMax + yearShift;
     // Clamp to valid range
     if (newMin <= MIN_YEAR && newMax >= MAX_YEAR) {
-      setViewMinYear(newMin);
-      setViewMaxYear(newMax);
+      setViewRange(newMin, newMax);
     }
-  }, [CHART_W, INNER_W, viewMinYear, viewMaxYear]);
+  }, [CHART_W, INNER_W, viewMinYear, viewMaxYear, setViewRange]);
 
   const handleMouseUp = useCallback(() => {
     dragRef.current = null;
@@ -191,10 +189,9 @@ export default function ArcsPage() {
     const newMin = dragRef.current.startMin + yearShift;
     const newMax = dragRef.current.startMax + yearShift;
     if (newMin <= MIN_YEAR && newMax >= MAX_YEAR) {
-      setViewMinYear(newMin);
-      setViewMaxYear(newMax);
+      setViewRange(newMin, newMax);
     }
-  }, []);
+  }, [setViewRange]);
 
   const handleTouchEnd = useCallback(() => {
     dragRef.current = null;
@@ -221,13 +218,14 @@ export default function ArcsPage() {
     const newMin = mouseYear + yearPct * newSpan;
     const newMax = mouseYear - (1 - yearPct) * newSpan;
 
-    setViewMinYear(Math.min(MIN_YEAR, Math.max(newMin, newSpan + MAX_YEAR)));
-    setViewMaxYear(Math.max(MAX_YEAR, Math.min(newMax, MIN_YEAR - newSpan)));
-  }, [viewMinYear, viewMaxYear]);
+    setViewRange(
+      Math.min(MIN_YEAR, Math.max(newMin, newSpan + MAX_YEAR)),
+      Math.max(MAX_YEAR, Math.min(newMax, MIN_YEAR - newSpan))
+    );
+  }, [viewMinYear, viewMaxYear, setViewRange]);
 
   const handleResetZoom = useCallback(() => {
-    setViewMinYear(MIN_YEAR);
-    setViewMaxYear(MAX_YEAR);
+    setManualZoom(null);
   }, []);
 
   const toggleChar = useCallback((id: string) => {
