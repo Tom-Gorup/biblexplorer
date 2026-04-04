@@ -5,7 +5,7 @@ import { Header } from '../components/Header';
 const tabs = [
   { to: '/easter/passion-week', label: 'Passion Week' },
   { to: '/easter/prophecy', label: 'Prophecy Fulfilled' },
-  { to: '/easter/last-words', label: 'Seven Last Words' },
+  { to: '/easter/last-words', label: 'The Final Words' },
 ];
 
 export default function EasterPage() {

@@ -18,8 +18,8 @@ export default function LastWordsPage() {
         {/* ── Cards ──────────────────────────────────────── */}
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-3xl mx-auto px-4 py-6">
-            <h1 className="text-2xl font-bold text-white mb-1">Seven Last Words from the Cross</h1>
-            <p className="text-stone-500 text-sm mb-8">The final statements of Jesus as he hung on the cross — seven windows into the heart of God in humanity's darkest hour.</p>
+            <h1 className="text-2xl font-bold text-white mb-1">The Final Words</h1>
+            <p className="text-stone-500 text-sm mb-8">The seven final statements of Jesus from the cross — windows into the heart of God in humanity's darkest hour.</p>
 
             <div className="space-y-4">
               {sevenLastWords.map(w => {
@@ -153,7 +153,7 @@ export default function LastWordsPage() {
             </div>
           ) : (
             <div className="p-4">
-              <h3 className="text-white text-sm font-semibold mb-2">Seven Last Words</h3>
+              <h3 className="text-white text-sm font-semibold mb-2">The Final Words</h3>
               <p className="text-stone-500 text-xs leading-relaxed mb-4">
                 From the cross, Jesus spoke seven times. These final words reveal his heart for forgiveness, salvation, love, suffering, and ultimate triumph.
               </p>
