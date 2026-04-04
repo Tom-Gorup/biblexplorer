@@ -84,11 +84,13 @@ export default function ArcsPage() {
     let min = Math.min(MIN_YEAR, latest + pad);
     let max = Math.max(MAX_YEAR, earliest - pad);
 
-    // Cap max visible span based on container width (min ~3px per year for readability)
-    const maxVisibleSpan = Math.max(100, Math.floor(INNER_W / 3));
-    if (min - max > maxVisibleSpan) {
-      // Show from the earliest data, spanning maxVisibleSpan years
-      max = min - maxVisibleSpan;
+    // On narrow screens (mobile), cap visible span so arcs are readable (~3px/year)
+    // On wider screens (desktop), allow the full range
+    if (INNER_W < 500) {
+      const maxVisibleSpan = Math.max(80, Math.floor(INNER_W / 3));
+      if (min - max > maxVisibleSpan) {
+        max = min - maxVisibleSpan;
+      }
     }
 
     return { min, max };
