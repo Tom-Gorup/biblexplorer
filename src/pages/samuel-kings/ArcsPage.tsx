@@ -17,7 +17,7 @@ const ARC_CHARS: { id: string; name: string; color: string }[] = [
 ];
 
 // ── SVG dimensions ──────────────────────────────────────────────
-const CHART_PAD = { top: 25, right: 20, bottom: 55, left: 55 };
+const CHART_PAD = { top: 25, right: 20, bottom: 65, left: 55 };
 
 // All arcs span from ~1050 BC to ~609 BC
 const MIN_YEAR = 1060;
@@ -175,6 +175,31 @@ export default function ArcsPage() {
     dragRef.current = null;
   }, []);
 
+  // Touch support for mobile pan
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      dragRef.current = { startX: e.touches[0].clientX, startMin: viewMinYear, startMax: viewMaxYear };
+    }
+  }, [viewMinYear, viewMaxYear]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!dragRef.current || !svgRef.current || e.touches.length !== 1) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    const dx = e.touches[0].clientX - dragRef.current.startX;
+    const yearPerPx = (dragRef.current.startMin - dragRef.current.startMax) / rect.width;
+    const yearShift = dx * yearPerPx;
+    const newMin = dragRef.current.startMin + yearShift;
+    const newMax = dragRef.current.startMax + yearShift;
+    if (newMin <= MIN_YEAR && newMax >= MAX_YEAR) {
+      setViewMinYear(newMin);
+      setViewMaxYear(newMax);
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    dragRef.current = null;
+  }, []);
+
   const handleChartWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
     const svg = svgRef.current;
@@ -293,7 +318,10 @@ export default function ArcsPage() {
             onMouseUp={handleMouseUp}
             onMouseLeave={handleChartMouseLeave}
             onWheel={handleChartWheel}
-            style={{ cursor: dragRef.current ? 'grabbing' : 'crosshair' }}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            style={{ cursor: dragRef.current ? 'grabbing' : 'crosshair', touchAction: 'none' }}
           >
             {/* Background grid */}
             {yearMarks.map(y => (
