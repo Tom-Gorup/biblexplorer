@@ -1,0 +1,60 @@
+name: "📖 Inaccuracy report"
+description: "Report data that doesn't match Scripture — wrong name, relationship, date, reference, or description"
+title: "[Inaccuracy] "
+labels: ["inaccuracy"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping keep BibleXplorer accurate! Reports with a scripture reference are the fastest to verify and fix.
+  - type: dropdown
+    id: section
+    attributes:
+      label: Where is it?
+      options:
+        - Genealogy (family tree)
+        - Samuel & Kings — Timeline
+        - Samuel & Kings — Events / Map
+        - Samuel & Kings — Relationships
+        - Samuel & Kings — Arcs
+        - Easter — Passion Week
+        - Easter — Prophecy Fulfilled
+        - Easter — Seven Last Words
+        - Other / general
+    validations:
+      required: true
+  - type: input
+    id: subject
+    attributes:
+      label: Person, event, or entry
+      description: Who or what does this concern?
+      placeholder: "e.g. Timna, Ahab's reign dates, the Naaman event"
+    validations:
+      required: true
+  - type: textarea
+    id: claim
+    attributes:
+      label: What the app currently says
+      description: Quote or describe the claim as shown in the app.
+    validations:
+      required: true
+  - type: textarea
+    id: correction
+    attributes:
+      label: What Scripture says
+      description: The correct fact, with the passage(s) that establish it. Please include book, chapter, and verse.
+      placeholder: "e.g. Gen 36:22 — 'Timna was Lotan's sister', so she should not appear as his daughter."
+    validations:
+      required: true
+  - type: input
+    id: references
+    attributes:
+      label: Scripture reference(s)
+      placeholder: "e.g. Gen 36:12, 22; 1 Chr 1:36"
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional context (optional)
+      description: Translation differences, interpretive questions, links, screenshots — anything that helps verification.

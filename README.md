@@ -46,7 +46,15 @@ Accuracy is a core goal of this project. The data files in `src/data/` are the h
 - **Interpretive choices are conventional and named.** Reign dates follow Thiele's chronology; the Passion Week ordering follows the standard synoptic harmonization; genealogical variants (Luke's Cainan, Arni/Admin, Shealtiel's two attested fathers, Zerubbabel via Shealtiel and Pedaiah) are all represented rather than flattened.
 - **Verse texts are brief excerpts.** Quotations are abridged for display; the built-in links open the full passages.
 
-Found an error? Please open an issue **with the scripture reference** — corrections are very welcome.
+## Contributing — found an inaccuracy?
+
+This project is meant to be **continuously collaborative**: the more eyes on the data, the more trustworthy it becomes.
+
+- **Report it:** [open an inaccuracy report](https://github.com/Tom-Gorup/biblexplorer/issues/new?template=inaccuracy-report.yml) — the form asks for what the app says, what Scripture says, and the verse reference(s). Reports with references get verified and fixed fastest.
+- **Fix it:** all content lives in plain TypeScript files under `src/data/` — most corrections are one-line edits. Fork, fix, and open a pull request; the PR template walks you through citing the supporting passage.
+- **Read first:** [CONTRIBUTING.md](CONTRIBUTING.md) explains the data conventions (typed relationships, verse-anchoring, Thiele chronology, named harmonizations) that keep the visualizations from claiming more than the text says.
+
+There's also a GitHub link in the app header, so anyone using the site can get here directly.
 
 ## Tech stack
 
