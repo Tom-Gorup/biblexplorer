@@ -614,7 +614,7 @@ export const passionWeek: PassionDay[] = [
         id: 'world-waits',
         title: 'The World Waits',
         description:
-          'Heaven is silent. The disciples hide behind locked doors. The women prepare spices for anointing. All creation holds its breath between the cross and the empty tomb. Saturday is the day between the worst thing that has ever happened and the best thing that will ever happen.',
+          'Heaven is silent. The disciples hide behind locked doors. The women, having prepared spices before sundown, rest according to the commandment. All creation holds its breath between the cross and the empty tomb. Saturday is the day between the worst thing that has ever happened and the best thing that will ever happen.',
         location: 'Jerusalem',
         participants: ['Disciples', 'Women followers'],
         primaryRef: 'Luke 23:56',
@@ -654,9 +654,9 @@ export const passionWeek: PassionDay[] = [
       {
         id: 'appears-to-women',
         title: 'Jesus Appears to the Women',
-        description: 'Jesus met the women on the road and greeted them. They came up, took hold of his feet, and worshiped him. He said, "Do not be afraid; go and tell my brothers to go to Galilee, and there they will see me."',
+        description: 'Jesus met the women on the road and greeted them. They came up, took hold of his feet, and worshiped him. He said, "Do not be afraid; go and tell my brothers to go to Galilee, and there they will see me." (Matthew names Mary Magdalene and "the other Mary"; John records Mary Magdalene\'s own encounter at the tomb separately.)',
         location: 'Near the Tomb',
-        participants: ['Jesus', 'Mary mother of James', 'Salome', 'Other women'],
+        participants: ['Jesus', 'Mary Magdalene', 'Mary mother of James'],
         primaryRef: 'Matt 28:9-10',
         category: 'resurrection',
       },

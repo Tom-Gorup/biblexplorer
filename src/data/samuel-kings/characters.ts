@@ -588,8 +588,9 @@ const additional: SKCharacter[] = [
     kingdom: 'judah',
     significance: 'notable',
     description: "High priest whose wife Jehosheba hid young Joash from Athaliah in the Temple for six years. Organized the coup that overthrew her and crowned Joash as king.",
-    sources: ['2kgs'],
+    sources: ['2kgs', '2chr'],
     primaryRef: '2 Kgs 11:4-12',
+    crossReferences: ['2 Chr 22:11-23:21', '2 Chr 24:15-16'],
   },
   {
     id: 'pharaoh-neco',

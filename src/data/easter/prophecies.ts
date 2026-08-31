@@ -267,7 +267,7 @@ export const allProphecies: Prophecy[] = [
     ntRef: 'Matt 26:31, 56',
     ntText: 'Then all the disciples left him and fled.',
     category: 'passion',
-    description: 'Jesus quoted this prophecy at the Last Supper, and hours later every disciple abandoned him.',
+    description: 'Jesus quoted this prophecy on the way to the Mount of Olives after the supper, and hours later every disciple abandoned him.',
   },
   {
     id: 'silent-before-accusers',
@@ -690,7 +690,7 @@ export const allProphecies: Prophecy[] = [
     ntRef: 'Mark 14:27',
     ntText: 'Jesus said to them, "You will all fall away, for it is written: I will strike the shepherd, and the sheep will be scattered."',
     category: 'passion',
-    description: 'Jesus quoted Zechariah at the Last Supper, knowing his arrest would scatter every disciple. Hours later, it happened exactly as prophesied.',
+    description: 'Jesus quoted Zechariah on the way to the Mount of Olives, knowing his arrest would scatter every disciple. Hours later, it happened exactly as prophesied.',
   },
   {
     id: 'wounded-healer',
