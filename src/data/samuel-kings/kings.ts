@@ -120,7 +120,7 @@ const judahKings: King[] = [
     orderInKingdom: 3,
     assessment: 'good',
     endOfReign: 'Died of disease in his feet',
-    contemporaryKings: ['jeroboam-i', 'nadab-king', 'baasha', 'elah-king', 'zimri-king', 'omri'],
+    contemporaryKings: ['jeroboam-i', 'nadab-king', 'baasha', 'elah-king', 'zimri-king', 'omri', 'ahab-king'],
     contemporaryProphets: ['azariah-prophet-asa', 'hanani-prophet'],
   },
   {
@@ -217,7 +217,7 @@ const judahKings: King[] = [
     orderInKingdom: 8,
     assessment: 'mixed',
     endOfReign: 'Assassinated by his servants',
-    contemporaryKings: ['jehu-king', 'jehoahaz-israel'],
+    contemporaryKings: ['jehu-king', 'jehoahaz-israel', 'jehoash-israel'],
     contemporaryProphets: ['elisha'],
   },
   {
@@ -255,8 +255,8 @@ const judahKings: King[] = [
     orderInKingdom: 10,
     assessment: 'good',
     endOfReign: 'Died a leper, buried separately',
-    contemporaryKings: ['jeroboam-ii', 'zechariah-israel', 'shallum-israel', 'menahem', 'pekahiah', 'pekah'],
-    contemporaryProphets: ['isaiah'],
+    contemporaryKings: ['jehoash-israel', 'jeroboam-ii', 'zechariah-israel', 'shallum-israel', 'menahem', 'pekahiah', 'pekah'],
+    contemporaryProphets: ['isaiah', 'amos', 'hosea'],
   },
   {
     id: 'jotham',
@@ -274,8 +274,8 @@ const judahKings: King[] = [
     orderInKingdom: 11,
     assessment: 'good',
     endOfReign: 'Died naturally',
-    contemporaryKings: ['pekah', 'menahem', 'pekahiah'],
-    contemporaryProphets: ['isaiah'],
+    contemporaryKings: ['menahem', 'pekahiah', 'pekah', 'hoshea'],
+    contemporaryProphets: ['isaiah', 'hosea', 'micah'],
   },
   {
     id: 'ahaz',
@@ -294,7 +294,7 @@ const judahKings: King[] = [
     assessment: 'evil',
     endOfReign: 'Died; not buried in royal tombs',
     contemporaryKings: ['pekah', 'hoshea'],
-    contemporaryProphets: ['isaiah'],
+    contemporaryProphets: ['isaiah', 'hosea', 'micah'],
   },
   {
     id: 'hezekiah',
@@ -313,7 +313,7 @@ const judahKings: King[] = [
     assessment: 'good',
     endOfReign: 'Died naturally',
     contemporaryKings: ['hoshea'],
-    contemporaryProphets: ['isaiah'],
+    contemporaryProphets: ['isaiah', 'hosea', 'micah'],
   },
   {
     id: 'manasseh-king',
@@ -365,7 +365,7 @@ const judahKings: King[] = [
     orderInKingdom: 16,
     assessment: 'good',
     endOfReign: 'Killed in battle at Megiddo by Pharaoh Neco',
-    contemporaryProphets: ['huldah-prophet'],
+    contemporaryProphets: ['huldah-prophet', 'jeremiah'],
   },
   {
     id: 'shallum-josiah',
@@ -384,6 +384,7 @@ const judahKings: King[] = [
     orderInKingdom: 17,
     assessment: 'evil',
     endOfReign: 'Deposed and exiled to Egypt by Pharaoh Neco',
+    contemporaryProphets: ['jeremiah'],
   },
   {
     id: 'jehoiakim',
@@ -402,6 +403,7 @@ const judahKings: King[] = [
     orderInKingdom: 18,
     assessment: 'evil',
     endOfReign: 'Died during Babylonian siege',
+    contemporaryProphets: ['jeremiah'],
   },
   {
     id: 'jehoiachin',
@@ -420,6 +422,7 @@ const judahKings: King[] = [
     orderInKingdom: 19,
     assessment: 'evil',
     endOfReign: 'Deposed and exiled to Babylon',
+    contemporaryProphets: ['jeremiah'],
   },
   {
     id: 'zedekiah-king',
@@ -438,6 +441,7 @@ const judahKings: King[] = [
     orderInKingdom: 20,
     assessment: 'evil',
     endOfReign: 'Blinded and exiled to Babylon; Jerusalem destroyed',
+    contemporaryProphets: ['jeremiah'],
   },
 ];
 
@@ -459,8 +463,8 @@ const israelKings: King[] = [
     reignYears: 22,
     orderInKingdom: 1,
     assessment: 'evil',
-    endOfReign: 'Died naturally',
-    contemporaryKings: ['rehoboam', 'abijah-rehoboam'],
+    endOfReign: 'Struck down by the LORD; died (2 Chr 13:20)',
+    contemporaryKings: ['rehoboam', 'abijah-rehoboam', 'asa'],
     contemporaryProphets: ['ahijah-prophet', 'man-of-god-judah'],
   },
   {
@@ -666,7 +670,7 @@ const israelKings: King[] = [
     orderInKingdom: 12,
     assessment: 'evil',
     endOfReign: 'Died naturally',
-    contemporaryKings: ['joash-king', 'amaziah'],
+    contemporaryKings: ['joash-king', 'amaziah', 'azariah-king'],
     contemporaryProphets: ['elisha'],
   },
   {
@@ -776,8 +780,8 @@ const israelKings: King[] = [
     orderInKingdom: 18,
     assessment: 'evil',
     endOfReign: 'Assassinated by Hoshea',
-    contemporaryKings: ['jotham', 'ahaz'],
-    contemporaryProphets: ['isaiah'],
+    contemporaryKings: ['azariah-king', 'jotham', 'ahaz'],
+    contemporaryProphets: ['isaiah', 'hosea'],
   },
   {
     id: 'hoshea',
@@ -795,7 +799,8 @@ const israelKings: King[] = [
     orderInKingdom: 19,
     assessment: 'evil',
     endOfReign: 'Captured by Assyria; Israel exiled',
-    contemporaryKings: ['ahaz', 'hezekiah'],
+    contemporaryKings: ['jotham', 'ahaz', 'hezekiah'],
+    contemporaryProphets: ['hosea'],
   },
 ];
 

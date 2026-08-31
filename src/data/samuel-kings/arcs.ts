@@ -54,18 +54,18 @@ export const characterArcs: Record<string, ArcPoint[]> = {
     { year: 865, influence: 50, label: 'Still small voice at Horeb; recommissioned; calls Elisha', ref: '1 Kgs 19:11-21' },
     { year: 856, influence: 70, label: 'Confronts Ahab at Naboth\'s vineyard', ref: '1 Kgs 21:17-24' },
     { year: 852, influence: 60, label: 'Calls fire on Ahaziah\'s soldiers', ref: '2 Kgs 1:10-12' },
-    { year: 848, influence: 90, label: 'Taken to heaven in chariot of fire', ref: '2 Kgs 2:11' },
+    { year: 850, influence: 90, label: 'Taken to heaven in chariot of fire', ref: '2 Kgs 2:11' },
   ],
 
   'elisha': [
     { year: 865, influence: 10, label: 'Called by Elijah; leaves the plow', ref: '1 Kgs 19:19-21' },
-    { year: 848, influence: 50, label: 'Receives double portion; parts the Jordan', ref: '2 Kgs 2:14' },
-    { year: 845, influence: 55, label: 'Multiplies widow\'s oil; raises Shunammite\'s son', ref: '2 Kgs 4:1-37' },
-    { year: 843, influence: 65, label: 'Heals Naaman of leprosy', ref: '2 Kgs 5:14' },
-    { year: 842, influence: 75, label: 'Blinds Aramean army; leads them to Samaria', ref: '2 Kgs 6:18-20' },
-    { year: 842, influence: 80, label: 'Prophesies end of siege and famine in Samaria', ref: '2 Kgs 7:1' },
+    { year: 850, influence: 50, label: 'Receives double portion; parts the Jordan', ref: '2 Kgs 2:14' },
+    { year: 847, influence: 55, label: 'Multiplies widow\'s oil; raises Shunammite\'s son', ref: '2 Kgs 4:1-37' },
+    { year: 845, influence: 65, label: 'Heals Naaman of leprosy', ref: '2 Kgs 5:14' },
+    { year: 844, influence: 75, label: 'Blinds Aramean army; leads them to Samaria', ref: '2 Kgs 6:18-20' },
+    { year: 843, influence: 80, label: 'Prophesies end of siege and famine in Samaria', ref: '2 Kgs 7:1' },
+    { year: 842, influence: 75, label: 'Foretells Hazael\'s reign over Aram; weeps at his cruelty to come', ref: '2 Kgs 8:7-15' },
     { year: 841, influence: 90, label: 'Sends prophet to anoint Jehu; triggers revolution', ref: '2 Kgs 9:1-3' },
-    { year: 838, influence: 75, label: 'Prophesies to Hazael; Aram\'s future king', ref: '2 Kgs 8:7-15' },
     { year: 798, influence: 70, label: 'Final prophecy to Jehoash; dies', ref: '2 Kgs 13:14-20' },
   ],
 
@@ -81,9 +81,8 @@ export const characterArcs: Record<string, ArcPoint[]> = {
   ],
 
   'hezekiah': [
-    { year: 715, influence: 50, label: 'Becomes king; launches reforms; destroys Nehushtan', ref: '2 Kgs 18:1-6' },
-    { year: 712, influence: 65, label: 'Purifies Temple; restores worship', ref: '2 Chr 29:3-36' },
-    { year: 710, influence: 70, label: 'Great Passover celebration', ref: '2 Chr 30:1-27' },
+    { year: 715, influence: 50, label: 'Becomes king; purifies Temple in his first year; destroys Nehushtan', ref: '2 Kgs 18:1-6; 2 Chr 29:3' },
+    { year: 714, influence: 70, label: 'Great Passover celebration; worship restored', ref: '2 Chr 30:1-27' },
     { year: 705, influence: 75, label: 'Builds tunnel; fortifies Jerusalem', ref: '2 Kgs 20:20' },
     { year: 701, influence: 50, label: 'Sennacherib invades; pays heavy tribute', ref: '2 Kgs 18:13-16' },
     { year: 701, influence: 95, label: 'Prays; angel destroys 185,000 Assyrians', ref: '2 Kgs 19:35' },

@@ -40,4 +40,10 @@ export const allLocations: SKLocation[] = [
   { id: 'gilgal',        name: 'Gilgal',          x: 35.4400, y: 31.8700, kingdom: 'judah',  description: "Saul was confirmed as king here. Important worship site." },
   { id: 'mizpah',        name: 'Mizpah',          x: 35.1900, y: 31.8500, kingdom: 'judah',  description: "Where Samuel judged Israel and Saul was publicly chosen as king." },
   { id: 'gibeah',        name: 'Gibeah',          x: 35.2300, y: 31.8100, kingdom: 'judah',  description: "Saul's hometown and royal residence." },
+  { id: 'jordan-river',  name: 'Jordan River',    x: 35.5300, y: 31.8400, description: 'River where Naaman washed and was healed, and near which Elijah was taken up to heaven.' },
+  { id: 'en-dor',        name: 'En-dor',          x: 35.3950, y: 32.6330, kingdom: 'israel', description: 'Village where Saul consulted a medium on the eve of his death.' },
+  { id: 'ziklag',        name: 'Ziklag',          x: 34.6800, y: 31.3800, kingdom: 'judah',  description: "Philistine-granted town where David lived as a fugitive and lamented Saul and Jonathan." },
+  { id: 'abel-meholah',  name: 'Abel-meholah',    x: 35.5000, y: 32.3500, kingdom: 'israel', description: "Elisha's hometown, where Elijah cast his mantle on him at the plow." },
+  { id: 'shunem',        name: 'Shunem',          x: 35.3350, y: 32.6050, kingdom: 'israel', description: 'Village where Elisha raised the Shunammite woman\'s son.' },
+  { id: 'kir-hareseth',  name: 'Kir-hareseth',    x: 35.7000, y: 31.1800, description: 'Fortress capital of Moab, besieged in the campaign of the three kings.' },
 ];

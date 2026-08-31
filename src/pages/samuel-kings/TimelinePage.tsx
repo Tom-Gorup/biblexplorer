@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useRef } from 'react';
-import { allKings } from '../../data/samuel-kings';
+import { allKings, allSKCharacters } from '../../data/samuel-kings';
 import type { King } from '../../types/samuel-kings';
 import { assessmentColors, kingdomColors, kingdomLabel } from '../../utils/kingdomColors';
 import { toBibleGatewayUrl } from '../../utils/bibleLinks';
@@ -90,6 +90,9 @@ function packProphetsIntoRows(items: Prophet[]): Prophet[][] {
   }
   return rows;
 }
+
+// ── Resolve character ids to display names ──────────────────────
+const characterNameById = new Map(allSKCharacters.map(c => [c.id, c.name]));
 
 // ── Reverse lookup: king id → prophet ids ───────────────────────
 const kingToProphets = new Map<string, string[]>();
@@ -426,7 +429,7 @@ export default function TimelinePage() {
           <p className="text-stone-300 text-sm leading-relaxed mb-3">{selected.description}</p>
           <p className="text-stone-500 text-xs mb-3">Reign ended: {selected.endOfReign}</p>
           {selected.contemporaryProphets && selected.contemporaryProphets.length > 0 && (
-            <p className="text-stone-400 text-xs mb-3">Prophets: {selected.contemporaryProphets.join(', ')}</p>
+            <p className="text-stone-400 text-xs mb-3">Prophets: {selected.contemporaryProphets.map(id => characterNameById.get(id) ?? id).join(', ')}</p>
           )}
           <a
             href={toBibleGatewayUrl(selected.primaryRef)}

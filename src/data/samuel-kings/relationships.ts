@@ -49,6 +49,14 @@ const prophetKingRelations: SKRelationship[] = [
   { source: 'isaiah', target: 'hezekiah', type: 'judgment', description: 'Isaiah predicted Babylonian exile after Hezekiah showed treasures', ref: '2 Kgs 20:16-18' },
   { source: 'huldah-prophet', target: 'josiah', type: 'prophet-to-king', description: 'Huldah confirmed coming judgment but promised Josiah peace', ref: '2 Kgs 22:15-20' },
   { source: 'jonah-prophet', target: 'jeroboam-ii', type: 'prophet-to-king', description: 'Jonah prophesied Israel\'s border restoration', ref: '2 Kgs 14:25' },
+  { source: 'man-of-god-judah', target: 'jeroboam-i', type: 'judgment', description: 'Cried out against the Bethel altar; Jeroboam\'s hand withered', ref: '1 Kgs 13:1-6' },
+  { source: 'azariah-prophet-asa', target: 'asa', type: 'counsel', description: '"The LORD is with you while you are with him" — spurred Asa\'s reforms', ref: '2 Chr 15:1-8' },
+  { source: 'hanani-prophet', target: 'asa', type: 'judgment', description: 'Rebuked Asa for relying on Aram; Asa imprisoned him', ref: '2 Chr 16:7-10' },
+  { source: 'amos', target: 'jeroboam-ii', type: 'judgment', description: 'Prophesied against the house of Jeroboam for Israel\'s injustice', ref: 'Amos 7:9-11' },
+  { source: 'hosea', target: 'jeroboam-ii', type: 'judgment', description: 'Prophesied the end of Jehu\'s dynasty and Israel\'s coming judgment', ref: 'Hos 1:4' },
+  { source: 'micah', target: 'hezekiah', type: 'prophet-to-king', description: 'Micah\'s warning of Zion\'s ruin moved Hezekiah to seek the LORD', ref: 'Jer 26:18-19' },
+  { source: 'jeremiah', target: 'jehoiakim', type: 'judgment', description: 'Jehoiakim burned Jeremiah\'s scroll; Jeremiah prophesied his dishonorable end', ref: 'Jer 36; 22:18-19' },
+  { source: 'jeremiah', target: 'zedekiah-king', type: 'counsel', description: 'Urged Zedekiah to surrender to Babylon and live; the king refused', ref: 'Jer 38:17-21' },
 ];
 
 // --- Judah Successions ---

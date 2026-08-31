@@ -2,7 +2,8 @@ export type Kingdom = 'united' | 'israel' | 'judah';
 export type CharacterRole = 'king' | 'prophet' | 'priest' | 'military' | 'queen' | 'official' | 'foreign-king';
 export type RelationTypeSK = 'ally' | 'enemy' | 'marriage' | 'parent-child' | 'succession' | 'prophet-to-king' | 'betrayal' | 'murder' | 'counsel' | 'judgment' | 'anointing' | 'rebellion' | 'treaty';
 export type EventCategory = 'battle' | 'prophecy' | 'coronation' | 'death' | 'treaty' | 'construction' | 'idolatry' | 'reform' | 'siege' | 'exile' | 'miracle' | 'journey';
-export type SourceBookSK = '1sam' | '2sam' | '1kgs' | '2kgs';
+// '2chr' = figure attested only in 2 Chronicles; 'prophets' = attested in the prophetic books
+export type SourceBookSK = '1sam' | '2sam' | '1kgs' | '2kgs' | '2chr' | 'prophets';
 export type KingAssessment = 'good' | 'evil' | 'mixed';
 
 export interface SKCharacter {
