@@ -199,7 +199,7 @@ export const passionWeek: PassionDay[] = [
       {
         id: 'seven-woes',
         title: 'Seven Woes Against the Pharisees',
-        description: 'Jesus pronounced seven devastating "Woe to you, scribes and Pharisees, hypocrites!" judgments for their hypocrisy, then wept over the city: "O Jerusalem, Jerusalem, the city that kills the prophets and stones those who are sent to it!"',
+        description: 'Jesus pronounced seven devastating "Woe to you, scribes and Pharisees, hypocrites!" judgments for their hypocrisy, then lamented over the city: "O Jerusalem, Jerusalem, the city that kills the prophets and stones those who are sent to it!"',
         location: 'Temple, Jerusalem',
         participants: ['Jesus', 'Pharisees', 'Scribes'],
         primaryRef: 'Matt 23:1-39',
@@ -249,7 +249,7 @@ export const passionWeek: PassionDay[] = [
         id: 'anointing-at-bethany',
         title: 'Jesus Anointed at Bethany',
         description:
-          'While Jesus is at the home of Simon the Leper in Bethany, a woman (identified in John as Mary, sister of Lazarus) pours an alabaster flask of very expensive ointment on His head. Jesus says she has prepared Him for burial and that her act will be told wherever the gospel is preached.',
+          'While Jesus is at the home of Simon the Leper in Bethany, a woman (identified in John as Mary, sister of Lazarus) pours an alabaster flask of very expensive ointment on His head. Jesus says she has prepared Him for burial and that her act will be told wherever the gospel is preached. (John places the meal six days before the Passover; Matthew and Mark recount it here as the backdrop to Judas\'s bargain.)',
         location: 'Bethany, house of Simon the Leper',
         participants: ['Jesus', 'Mary of Bethany', 'Simon the Leper', 'Disciples'],
         primaryRef: 'Matt 26:6-13',
@@ -273,7 +273,8 @@ export const passionWeek: PassionDay[] = [
           'Jesus sends Peter and John to prepare the Passover meal. He tells them to follow a man carrying a jar of water to a house with a large upper room already furnished and ready.',
         location: 'Jerusalem',
         participants: ['Jesus', 'Peter', 'John'],
-        primaryRef: 'Matt 26:17-19',
+        primaryRef: 'Luke 22:7-13',
+        crossRefs: ['Matt 26:17-19', 'Mark 14:12-16'],
         category: 'entry',
       },
       {
@@ -545,7 +546,7 @@ export const passionWeek: PassionDay[] = [
           'At the moment of Jesus\' death, the curtain of the Temple is torn in two from top to bottom. The earth shakes and rocks split. Tombs break open and the bodies of many saints are raised. The way into the presence of God is now open to all.',
         location: 'Temple, Jerusalem',
         participants: [],
-        primaryRef: 'Matt 27:51',
+        primaryRef: 'Matt 27:51-53',
         category: 'miracle',
       },
       {
@@ -655,7 +656,7 @@ export const passionWeek: PassionDay[] = [
         title: 'Jesus Appears to the Women',
         description: 'Jesus met the women on the road and greeted them. They came up, took hold of his feet, and worshiped him. He said, "Do not be afraid; go and tell my brothers to go to Galilee, and there they will see me."',
         location: 'Near the Tomb',
-        participants: ['Jesus', 'Mary Magdalene', 'Women'],
+        participants: ['Jesus', 'Mary mother of James', 'Salome', 'Other women'],
         primaryRef: 'Matt 28:9-10',
         category: 'resurrection',
       },
