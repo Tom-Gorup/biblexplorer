@@ -87,7 +87,13 @@ export default function GenealogyPage() {
     if (!cy) return;
     setFocusedId(id);
     const root = cy.getElementById(id);
-    const subtree = root.successors().union(root);
+    // Follow only genuine lines of descent (parent/spouse/descendant edges) —
+    // royal succession and land-association edges are not descendants.
+    const descentEdges = cy.edges().filter(e => {
+      const t = e.data('type') || 'parent';
+      return t === 'parent' || t === 'spouse' || t === 'descendant';
+    });
+    const subtree = descentEdges.union(cy.nodes()).bfs({ roots: root, directed: true }).path.nodes().union(root);
     setVisibleCount(subtree.nodes().length);
     cy.batch(() => {
       cy.elements().addClass('dimmed').removeClass('tribe-active');

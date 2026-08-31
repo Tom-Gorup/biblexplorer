@@ -24,6 +24,7 @@ export interface CytoscapeEdge {
     source: string;
     target: string;
     id: string;
+    type: string;
   };
 }
 
@@ -61,6 +62,7 @@ export function buildGraph(persons: Person[], relationships: Relationship[]): Cy
         source: r.source,
         target: r.target,
         id: `e${i}`,
+        type: r.type || 'parent',
       },
     }));
 

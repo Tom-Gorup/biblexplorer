@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Core } from 'cytoscape';
+import type { Core, EdgeSingular, NodeSingular } from 'cytoscape';
 import type { Person } from '../../types';
 import { tribeColorMap } from '../../utils/tribeColors';
 import { toBibleGatewayUrl, splitRefs } from '../../utils/bibleLinks';
@@ -10,6 +10,8 @@ interface FamilyMember {
   tribe: string;
   bgColor: string;
   borderColor: string;
+  /** True when generations are omitted between this ancestor and the next person in the path */
+  gapAfter?: boolean;
 }
 
 interface Props {
@@ -20,47 +22,113 @@ interface Props {
   cyRef: React.MutableRefObject<Core | null>;
 }
 
+const toMember = (n: NodeSingular): FamilyMember => ({
+  id: n.id(),
+  name: n.data('label'),
+  tribe: n.data('tribe'),
+  bgColor: n.data('bgColor'),
+  borderColor: n.data('borderColor'),
+});
+
 function getAncestryPath(cy: Core, personId: string): FamilyMember[] {
   const path: FamilyMember[] = [];
   let current = cy.getElementById(personId);
   const visited = new Set<string>();
+  let isFirstStep = true;
+  // Set when the upcoming ancestor is separated from the person below by omitted generations
+  let nextHasGapAfter = false;
 
   while (current.length) {
     const id = current.id();
     if (visited.has(id)) break;
     visited.add(id);
 
-    path.unshift({
-      id,
-      name: current.data('label'),
-      tribe: current.data('tribe'),
-      bgColor: current.data('bgColor'),
-      borderColor: current.data('borderColor'),
-    });
+    const member = toMember(current);
+    if (nextHasGapAfter) member.gapAfter = true;
+    path.unshift(member);
 
-    // Walk to parent (pick the one with longest chain, favoring the first incomer)
-    const parents = current.incomers('node');
-    if (parents.length === 0) break;
-    current = parents.first() as any;
+    // Walk upward along genuine lines of descent only. Marriage edges are crossed
+    // when tracing a child's paternal line (husband → wife → child), but never as the
+    // first step — a person's spouse is not their ancestor. Succession/association
+    // edges (Edom's kings, Seir) are never ancestry.
+    const inEdges = current.incomers('edge');
+    let chosen: EdgeSingular | null = null;
+    for (const t of ['parent', 'descendant', 'spouse']) {
+      if (t === 'spouse' && isFirstStep) continue;
+      const match = inEdges.filter(e => (e.data('type') || 'parent') === t);
+      if (match.length > 0) { chosen = match.first() as EdgeSingular; break; }
+    }
+    if (!chosen) break;
+
+    nextHasGapAfter = (chosen.data('type') || 'parent') === 'descendant';
+    current = chosen.source() as unknown as typeof current;
+    isFirstStep = false;
   }
 
   return path;
 }
 
-function getFamily(cy: Core, personId: string): { parents: FamilyMember[]; children: FamilyMember[] } {
+interface Family {
+  parents: FamilyMember[];
+  children: FamilyMember[];
+  spouses: FamilyMember[];
+  descendedFrom: FamilyMember[]; // ancestors with generations omitted
+  descendantLines: FamilyMember[]; // later descendants with generations omitted
+  precededBy: FamilyMember[]; // royal succession
+  succeededBy: FamilyMember[];
+  associated: FamilyMember[]; // land/nation association, no blood line
+}
+
+function getFamily(cy: Core, personId: string): Family {
   const node = cy.getElementById(personId);
-  const toMember = (n: any): FamilyMember => ({
-    id: n.id(),
-    name: n.data('label'),
-    tribe: n.data('tribe'),
-    bgColor: n.data('bgColor'),
-    borderColor: n.data('borderColor'),
+  const family: Family = {
+    parents: [], children: [], spouses: [], descendedFrom: [],
+    descendantLines: [], precededBy: [], succeededBy: [], associated: [],
+  };
+
+  node.incomers('edge').forEach((e: EdgeSingular) => {
+    const m = toMember(e.source());
+    const t = e.data('type') || 'parent';
+    if (t === 'parent') family.parents.push(m);
+    else if (t === 'spouse') family.spouses.push(m);
+    else if (t === 'descendant') family.descendedFrom.push(m);
+    else if (t === 'succession') family.precededBy.push(m);
+    else family.associated.push(m);
   });
 
-  const parents = node.incomers('node').map(toMember);
-  const children = node.outgoers('node').map(toMember);
+  node.outgoers('edge').forEach((e: EdgeSingular) => {
+    const m = toMember(e.target());
+    const t = e.data('type') || 'parent';
+    if (t === 'parent') family.children.push(m);
+    else if (t === 'spouse') family.spouses.push(m);
+    else if (t === 'descendant') family.descendantLines.push(m);
+    else if (t === 'succession') family.succeededBy.push(m);
+    else family.associated.push(m);
+  });
 
-  return { parents, children };
+  return family;
+}
+
+function FamilySection({ title, hint, members, onNavigate }: {
+  title: string;
+  hint?: string;
+  members: FamilyMember[];
+  onNavigate: (id: string) => void;
+}) {
+  if (members.length === 0) return null;
+  return (
+    <div>
+      <h3 className="text-stone-500 text-xs font-semibold uppercase tracking-wider mb-1.5">
+        {title}
+        {hint && <span className="normal-case font-normal tracking-normal text-stone-600"> ({hint})</span>}
+      </h3>
+      <div className="flex flex-wrap gap-1">
+        {members.map(m => (
+          <FamilyLink key={m.id} member={m} onClick={() => onNavigate(m.id)} />
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function FamilyLink({ member, onClick }: { member: FamilyMember; onClick: () => void }) {
@@ -85,11 +153,17 @@ export function PersonDetail({ person, onClose, onNavigate, onFocusDescendants, 
     return getAncestryPath(cy, person.id);
   }, [person.id, cyRef]);
 
-  const { parents, children } = useMemo(() => {
+  const family = useMemo(() => {
     const cy = cyRef.current;
-    if (!cy) return { parents: [], children: [] };
+    if (!cy) {
+      return {
+        parents: [], children: [], spouses: [], descendedFrom: [],
+        descendantLines: [], precededBy: [], succeededBy: [], associated: [],
+      } as Family;
+    }
     return getFamily(cy, person.id);
   }, [person.id, cyRef]);
+  const { parents, children, spouses, descendedFrom, descendantLines, precededBy, succeededBy, associated } = family;
 
   return (
     <div className="bg-stone-800 border-t border-stone-600 overflow-y-auto max-h-[60vh] md:max-h-[50vh]">
@@ -99,7 +173,10 @@ export function PersonDetail({ person, onClose, onNavigate, onFocusDescendants, 
           <div className="flex items-center gap-1 text-xs whitespace-nowrap">
             {ancestry.map((a, i) => (
               <span key={a.id} className="flex items-center gap-1">
-                {i > 0 && <span className="text-stone-600">&rsaquo;</span>}
+                {i > 0 && (ancestry[i - 1].gapAfter
+                  ? <span className="text-stone-600" title="Generations omitted">&rsaquo;&#8943;&rsaquo;</span>
+                  : <span className="text-stone-600">&rsaquo;</span>
+                )}
                 {a.id === person.id ? (
                   <span className="text-white font-semibold">{a.name}</span>
                 ) : (
@@ -133,7 +210,7 @@ export function PersonDetail({ person, onClose, onNavigate, onFocusDescendants, 
             </div>
           </div>
           <div className="flex items-center gap-1">
-            {children.length > 0 && (
+            {(children.length > 0 || descendantLines.length > 0) && (
               <button
                 onClick={() => onFocusDescendants(person.id)}
                 className="text-stone-400 hover:text-blue-400 p-1 transition-colors"
@@ -184,26 +261,14 @@ export function PersonDetail({ person, onClose, onNavigate, onFocusDescendants, 
 
         {/* Family links */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-          {parents.length > 0 && (
-            <div>
-              <h3 className="text-stone-500 text-xs font-semibold uppercase tracking-wider mb-1.5">Parents</h3>
-              <div className="flex flex-wrap gap-1">
-                {parents.map(p => (
-                  <FamilyLink key={p.id} member={p} onClick={() => onNavigate(p.id)} />
-                ))}
-              </div>
-            </div>
-          )}
-          {children.length > 0 && (
-            <div>
-              <h3 className="text-stone-500 text-xs font-semibold uppercase tracking-wider mb-1.5">Children</h3>
-              <div className="flex flex-wrap gap-1">
-                {children.map(c => (
-                  <FamilyLink key={c.id} member={c} onClick={() => onNavigate(c.id)} />
-                ))}
-              </div>
-            </div>
-          )}
+          <FamilySection title="Parents" members={parents} onNavigate={onNavigate} />
+          <FamilySection title="Spouses & Unions" members={spouses} onNavigate={onNavigate} />
+          <FamilySection title="Children" members={children} onNavigate={onNavigate} />
+          <FamilySection title="Descended From" hint="generations omitted" members={descendedFrom} onNavigate={onNavigate} />
+          <FamilySection title="Descendants" hint="generations omitted" members={descendantLines} onNavigate={onNavigate} />
+          <FamilySection title="Preceded By" hint="royal succession, not descent" members={precededBy} onNavigate={onNavigate} />
+          <FamilySection title="Succeeded By" hint="royal succession, not descent" members={succeededBy} onNavigate={onNavigate} />
+          <FamilySection title="Associated With" hint="by land or nation, not blood" members={associated} onNavigate={onNavigate} />
         </div>
 
         {/* Source reference */}

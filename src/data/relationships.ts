@@ -1,4 +1,4 @@
-import type { Relationship } from '../types';
+import type { Relationship, RelationType } from '../types';
 
 // Helper: create a chain of parent→child relationships
 function lineage(...ids: string[]): Relationship[] {
@@ -9,9 +9,28 @@ function lineage(...ids: string[]): Relationship[] {
   return rels;
 }
 
-// Helper: one parent, many children
-function children(parent: string, kids: string[]): Relationship[] {
-  return kids.map(kid => ({ source: parent, target: kid }));
+// Helper: one parent, many children (optionally typed, e.g. 'descendant' for clan links)
+function children(parent: string, kids: string[], type?: RelationType): Relationship[] {
+  return kids.map(kid => (type ? { source: parent, target: kid, type } : { source: parent, target: kid }));
+}
+
+// Helper: a chain of successive rulers (NOT father→son)
+function succession(...ids: string[]): Relationship[] {
+  const rels: Relationship[] = [];
+  for (let i = 0; i < ids.length - 1; i++) {
+    rels.push({ source: ids[i], target: ids[i + 1], type: 'succession' });
+  }
+  return rels;
+}
+
+// Helper: husband → wife/partner
+function spouse(husband: string, wife: string): Relationship {
+  return { source: husband, target: wife, type: 'spouse' };
+}
+
+// Helper: ancestor → descendant with generations omitted/compressed
+function descendant(ancestor: string, desc: string): Relationship {
+  return { source: ancestor, target: desc, type: 'descendant' };
 }
 
 export const allRelationships: Relationship[] = [
@@ -44,7 +63,7 @@ export const allRelationships: Relationship[] = [
   // Abraham's children
   ...children('abraham', ['isaac', 'ishmael']),
   // Keturah's sons — children of Abraham through Keturah
-  { source: 'abraham', target: 'keturah' },
+  spouse('abraham', 'keturah'),
   ...children('keturah', ['zimran', 'jokshan', 'medan', 'midian', 'ishbak', 'shuah']),
   ...children('jokshan', ['sheba-jokshan', 'dedan-jokshan']),
   ...children('midian', ['ephah', 'epher', 'hanoch-midian', 'abida', 'eldaah']),
@@ -63,7 +82,8 @@ export const allRelationships: Relationship[] = [
   // Seir / Horites (1 Chr 1:38-42)
   ...children('seir', ['lotan', 'shobal-seir', 'zibeon', 'anah', 'dishon', 'ezer-seir', 'dishan']),
   ...children('lotan', ['hori', 'hemam']),
-  { source: 'lotan', target: 'timna' }, // sister
+  { source: 'seir', target: 'timna' }, // Timna was Lotan's sister, i.e. Seir's daughter (Gen 36:22)
+  { source: 'timna', target: 'amalek' }, // Timna, concubine of Eliphaz, bore Amalek (Gen 36:12)
   ...children('shobal-seir', ['alvan', 'manahath', 'ebal-shobal', 'shepho', 'onam']),
   ...children('zibeon', ['aiah', 'anah-zibeon']),
   { source: 'anah', target: 'dishon-anah' },
@@ -71,15 +91,16 @@ export const allRelationships: Relationship[] = [
   ...children('ezer-seir', ['bilhan', 'zaavan', 'akan']),
   ...children('dishan', ['uz-dishan', 'aran']),
 
-  // Seir is listed in Esau's section but was the original Horite inhabitant — connect under Esau's region
-  { source: 'esau', target: 'seir' },
+  // Seir was the original Horite inhabitant of Edom — no blood relation to Esau; linked by land only
+  { source: 'esau', target: 'seir', type: 'associated' },
 
-  // Kings of Edom (1 Chr 1:43-50) — sequential rulers in Edom, connected under Esau
-  { source: 'esau', target: 'bela-edom' },
-  ...lineage('bela-edom', 'jobab-edom', 'husham', 'hadad-edom', 'samlah', 'shaul-edom', 'baal-hanan', 'hadad-edom2'),
+  // Kings of Edom (1 Chr 1:43-50) — successive rulers, explicitly NOT father-son (each has a
+  // different father/city, Gen 36:31-39). Anchored under Esau because they reigned over his nation.
+  { source: 'esau', target: 'bela-edom', type: 'associated' },
+  ...succession('bela-edom', 'jobab-edom', 'husham', 'hadad-edom', 'samlah', 'shaul-edom', 'baal-hanan', 'hadad-edom2'),
 
-  // Chiefs of Edom (1 Chr 1:51-54)
-  ...children('esau', ['timna-chief', 'alvah', 'jetheth', 'oholibamah', 'elah-chief', 'pinon', 'kenaz-chief', 'teman-chief', 'mibzar', 'magdiel', 'iram']),
+  // Chiefs of Edom (1 Chr 1:51-54) — clan chiefs descended from Esau, generations not given
+  ...children('esau', ['timna-chief', 'alvah', 'jetheth', 'oholibamah', 'elah-chief', 'pinon', 'kenaz-chief', 'teman-chief', 'mibzar', 'magdiel', 'iram'], 'descendant'),
 
   // ============ CHAPTER 2: Jacob's sons & Judah's line ============
   ...children('jacob', ['reuben', 'simeon', 'levi', 'judah', 'dan', 'naphtali', 'gad', 'asher', 'issachar', 'zebulun', 'joseph', 'benjamin']),
@@ -87,19 +108,19 @@ export const allRelationships: Relationship[] = [
   // Joseph's sons
   ...children('joseph', ['ephraim-joseph', 'manasseh-joseph']),
 
-  // Judah's line — children through wives
-  { source: 'judah', target: 'bath-shua' },
+  // Judah's line — children through Bath-shua (wife) and Tamar (his widowed daughter-in-law, Gen 38)
+  spouse('judah', 'bath-shua'),
   ...children('bath-shua', ['er', 'onan', 'shelah-judah']),
-  { source: 'judah', target: 'tamar' },
+  spouse('judah', 'tamar'),
   ...children('tamar', ['perez', 'zerah-judah']),
   ...children('perez', ['hezron', 'hamul']),
   ...children('hezron', ['ram', 'jerahmeel', 'caleb-hezron']),
-  { source: 'caleb-hezron', target: 'azubah-caleb' },
-  { source: 'caleb-hezron', target: 'ephrath' },
+  spouse('caleb-hezron', 'azubah-caleb'),
+  spouse('caleb-hezron', 'ephrath'),
   ...lineage('ram', 'amminadab', 'nahshon', 'salma'),
-  { source: 'salma', target: 'rahab' },
+  spouse('salma', 'rahab'), // "Salmon the father of Boaz by Rahab" (Matt 1:5)
   { source: 'rahab', target: 'boaz' },
-  { source: 'boaz', target: 'ruth' },
+  spouse('boaz', 'ruth'), // Boaz married Ruth (Ruth 4:13)
   { source: 'ruth', target: 'obed' },
   ...lineage('obed', 'jesse'),
   ...children('jesse', ['eliab', 'abinadab-jesse', 'shimea', 'nethanel-jesse', 'raddai', 'ozem', 'david', 'zeruiah', 'abigail-jesse']),
@@ -108,19 +129,19 @@ export const allRelationships: Relationship[] = [
 
   // ============ CHAPTER 3: David's royal line ============
   // David's wives and their children (1 Chr 3:1-9)
-  { source: 'david', target: 'ahinoam' },
+  spouse('david', 'ahinoam'),
   { source: 'ahinoam', target: 'amnon' },
-  { source: 'david', target: 'abigail-carmel' },
+  spouse('david', 'abigail-carmel'),
   { source: 'abigail-carmel', target: 'daniel-david' },
-  { source: 'david', target: 'maacah-david' },
+  spouse('david', 'maacah-david'),
   { source: 'maacah-david', target: 'absalom' },
-  { source: 'david', target: 'haggith' },
+  spouse('david', 'haggith'),
   { source: 'haggith', target: 'adonijah' },
-  { source: 'david', target: 'abital' },
+  spouse('david', 'abital'),
   { source: 'abital', target: 'shephatiah-david' },
-  { source: 'david', target: 'eglah' },
+  spouse('david', 'eglah'),
   { source: 'eglah', target: 'ithream' },
-  { source: 'david', target: 'bathsheba' },
+  spouse('david', 'bathsheba'),
   ...children('bathsheba', ['shimea-david', 'shobab', 'nathan-david', 'solomon']),
   // Other sons born in Jerusalem (mothers not specified)
   ...children('david', ['ibhar', 'elishama-david', 'eliphelet-david', 'nogah', 'nepheg', 'japhia', 'elishama-david2', 'eliada', 'eliphelet-david2', 'tamar-david']),
@@ -140,20 +161,21 @@ export const allRelationships: Relationship[] = [
   ...children('elioenai', ['hodaviah', 'eliashib', 'pelaiah', 'akkub', 'johanan-post', 'delaiah', 'anani']),
 
   // ============ CHAPTER 4: More Judah & Simeon ============
-  { source: 'judah', target: 'jabez' }, // loosely connected clan of Judah
+  descendant('judah', 'jabez'), // a man of Judah's clans; his exact lineage is not given (1 Chr 4:9-10)
 
   // Simeon's sons
   ...children('simeon', ['nemuel', 'jamin-simeon', 'jarib', 'zerah-simeon', 'shaul-simeon']),
 
   // ============ CHAPTER 5: Reuben, Gad ============
   ...children('reuben', ['hanoch-reuben', 'pallu', 'hezron-reuben', 'carmi-reuben']),
-  { source: 'reuben', target: 'joel-reuben' },
+  descendant('reuben', 'joel-reuben'), // Joel's descent from Reuben is not detailed (1 Chr 5:4)
   ...lineage('joel-reuben', 'shemaiah-reuben', 'gog-reuben', 'shimei-reuben', 'micah-reuben', 'reaiah-reuben', 'baal-reuben', 'beerah'),
 
-  ...children('gad', ['joel-gad']),
-  { source: 'gad', target: 'shapham' },
-  { source: 'gad', target: 'janai' },
-  { source: 'gad', target: 'shaphat-gad' },
+  // Gadite leaders in Bashan — descendants of Gad, generations not given (1 Chr 5:11-12)
+  descendant('gad', 'joel-gad'),
+  descendant('gad', 'shapham'),
+  descendant('gad', 'janai'),
+  descendant('gad', 'shaphat-gad'),
 
   // ============ CHAPTER 6: Levi's line ============
   ...children('levi', ['gershon', 'kohath', 'merari']),
@@ -164,10 +186,11 @@ export const allRelationships: Relationship[] = [
   // High priestly line
   ...lineage('eleazar-aaron', 'phinehas', 'abishua', 'bukki', 'uzzi-levi', 'zerahiah', 'meraioth', 'amariah-levi', 'ahitub', 'zadok', 'ahimaaz', 'azariah-priest1', 'johanan-priest', 'azariah-temple', 'amariah-priest2', 'ahitub2', 'zadok2', 'shallum-priest', 'hilkiah', 'azariah-priest3', 'seraiah-priest', 'jehozadak'),
 
-  // Temple musicians
-  { source: 'kohath', target: 'heman-singer' },
-  { source: 'gershon', target: 'asaph-singer' },
-  { source: 'merari', target: 'ethan-singer' },
+  // Temple musicians — each a distant descendant of his Levitical clan head;
+  // full generational chains are in 1 Chr 6:33-47 but are compressed here
+  descendant('kohath', 'heman-singer'),
+  descendant('gershon', 'asaph-singer'),
+  descendant('merari', 'ethan-singer'),
 
   // Gershon's sons
   ...children('gershon', ['libni', 'shimei-gershon']),
@@ -197,14 +220,15 @@ export const allRelationships: Relationship[] = [
   ...children('asher', ['imnah', 'ishvah', 'ishvi-asher', 'beriah-asher', 'serah']),
 
   // ============ CHAPTER 8: Benjamin & Saul ============
-  // Shaharaim's wives and children (1 Chr 8:8-11)
-  { source: 'benjamin', target: 'shaharaim' },
-  { source: 'shaharaim', target: 'hushim-wife' },
+  // Shaharaim's wives and children (1 Chr 8:8-11) — Shaharaim was a Benjaminite of unstated descent
+  descendant('benjamin', 'shaharaim'),
+  spouse('shaharaim', 'hushim-wife'),
   ...children('hushim-wife', ['abitub', 'elpaal']),
-  { source: 'shaharaim', target: 'hodesh' },
+  spouse('shaharaim', 'hodesh'),
   ...children('hodesh', ['jobab-shaharaim', 'zibia', 'mesha-shaharaim', 'malcam', 'jeuz', 'sachia', 'mirmah']),
 
-  ...lineage('benjamin', 'jeiel'),
+  // Jeiel "father of Gibeon" — a Benjaminite ancestor of Saul; generations to Benjamin not given
+  descendant('benjamin', 'jeiel'),
   ...lineage('jeiel', 'ner', 'kish', 'saul'),
   ...children('saul', ['jonathan', 'malchishua', 'abinadab-saul', 'eshbaal']),
   { source: 'jonathan', target: 'merib-baal' },
@@ -213,7 +237,7 @@ export const allRelationships: Relationship[] = [
 
   // Matthew's line: Zerubbabel to Jesus (Matt 1:13-16)
   ...lineage('zerubbabel', 'abiud', 'eliakim-matt', 'azor', 'zadok-matt', 'achim', 'eliud', 'eleazar-matt', 'matthan', 'jacob-matt', 'joseph-mary'),
-  { source: 'joseph-mary', target: 'mary' },
+  spouse('joseph-mary', 'mary'), // "Joseph the husband of Mary, of whom Jesus was born" (Matt 1:16)
   { source: 'mary', target: 'jesus' },
 
   // Luke's line: Nathan to Shealtiel (Luke 3:27-31)

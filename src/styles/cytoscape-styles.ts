@@ -81,6 +81,43 @@ export const cytoscapeStyles: any[] = [
       'transition-duration': 200,
     } as any,
   },
+  // Marriage — dashed pink, no arrow (not a descent line)
+  {
+    selector: 'edge[type="spouse"]',
+    style: {
+      'line-style': 'dashed',
+      'line-color': '#ec4899',
+      'target-arrow-shape': 'none',
+      'opacity': 0.45,
+    } as any,
+  },
+  // Royal succession (Edom's kings) — dotted amber, not father-son
+  {
+    selector: 'edge[type="succession"]',
+    style: {
+      'line-style': 'dotted',
+      'line-color': '#f59e0b',
+      'target-arrow-color': '#f59e0b',
+      'opacity': 0.5,
+    } as any,
+  },
+  // Compressed descent — dashed (generations omitted between the two)
+  {
+    selector: 'edge[type="descendant"]',
+    style: {
+      'line-style': 'dashed',
+      'opacity': 0.45,
+    } as any,
+  },
+  // Association by land/nation only (no blood line)
+  {
+    selector: 'edge[type="associated"]',
+    style: {
+      'line-style': 'dotted',
+      'target-arrow-shape': 'none',
+      'opacity': 0.3,
+    } as any,
+  },
   // Selected node
   {
     selector: 'node:selected',
