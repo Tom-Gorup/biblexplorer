@@ -93,3 +93,9 @@ src/
 ## Deployment
 
 The site deploys to Vercel as a static SPA (`vercel.json` rewrites all routes to `index.html` for client-side routing).
+
+## License
+
+Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE.md): you are free to use, copy, modify, and share this project **for any noncommercial purpose**. Commercial use requires permission. This tool is meant to stay free for everyone.
+
+Scripture quotations are brief excerpts from the ESV® Bible, copyright © 2001 by Crossway, and remain Crossway's property — they are not covered by the project license.

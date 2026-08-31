@@ -65,6 +65,10 @@ These rules exist so the visualizations never claim more than the text does:
 
 Code contributions (UI, performance, accessibility, a data-validation test suite) and new content areas (more books, more visualizations) are welcome too — open an issue first for anything large so we can align on approach.
 
+## Licensing of contributions
+
+The project is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE.md) — free for any noncommercial use. By submitting a pull request, you agree that your contribution is licensed under the same terms (the standard "inbound = outbound" model).
+
 ## Tone of the project
 
 This is a study tool meant to serve anyone exploring Scripture. Descriptions aim to be faithful to the text, charitable across traditions, and clear about the difference between what the text says and how it has been interpreted.
